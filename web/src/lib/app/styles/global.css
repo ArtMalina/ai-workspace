@@ -1,0 +1,21 @@
+@import 'tailwindcss';
+@import './tokens.css';
+
+@layer base {
+    *, *::before, *::after {
+        box-sizing: border-box;
+    }
+
+    html {
+        font-family: var(--font-sans);
+        font-size: var(--text-base);
+        line-height: var(--leading-normal);
+        color: var(--text-primary);
+        background-color: var(--surface-page);
+        -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+        margin: 0;
+    }
+}
