@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Button } from "$lib/shared/ui";
+  import { Button, Link } from "$lib/shared/ui";
   import { LampDesk } from "@lucide/svelte";
 </script>
 
@@ -10,7 +10,7 @@
     </h1>
     <p class="ui-text--card m-0">Your AI-powered workspace is ready.</p>
     <div class="flex gap-3 mt-2">
-      <Button variant="primary" size="md">Get Started</Button>
+      <Link href="/workspace" variant="primary" size="md">Get Started</Link>
       <Button variant="ghost" size="md">Learn More</Button>
     </div>
   </div>

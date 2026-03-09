@@ -41,7 +41,7 @@
 
   .app-shell__header {
     display: flex;
-    align-items: center;
+    align-items: stretch;
     justify-content: space-between;
     padding: 0 var(--spacing-6);
     height: 3.5rem;
@@ -52,7 +52,7 @@
   .app-shell__header-start,
   .app-shell__header-end {
     display: flex;
-    align-items: center;
+    align-items: stretch;
     gap: var(--spacing-2);
   }
 
