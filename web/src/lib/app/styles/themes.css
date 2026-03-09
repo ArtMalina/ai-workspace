@@ -1,0 +1,106 @@
+/* ─────────────────────────────────────────────────────────
+   Layer 2 — Theme
+   Semantic aliases that reference base tokens.
+   These swap between light and dark mode.
+   Components always use these, never raw tokens directly.
+   ───────────────────────────────────────────────────────── */
+
+:root {
+  /* ─── Surface ─────────────────────────────────────── */
+  --surface-page: var(--color-neutral-50);
+  --surface-card: #ffffff;
+  --surface-elevated: var(--color-neutral-100);
+  --surface-overlay: var(--color-neutral-200);
+
+  /* ─── Text ────────────────────────────────────────── */
+  --text-primary: var(--color-neutral-900);
+  --text-secondary: var(--color-neutral-600);
+  --text-muted: var(--color-neutral-400);
+  --text-inverted: var(--color-neutral-50);
+
+  /* ─── Border ──────────────────────────────────────── */
+  --border-subtle: var(--color-neutral-200);
+  --border-default: var(--color-neutral-300);
+  --border-strong: var(--color-neutral-400);
+
+  /* ─── Brand ───────────────────────────────────────── */
+  --brand-default: var(--color-primary-500);
+  --brand-hover: var(--color-primary-600);
+  --brand-active: var(--color-primary-700);
+  --brand-subtle: var(--color-primary-50);
+  --brand-text: var(--color-primary-700);
+
+  /* ─── Status ──────────────────────────────────────── */
+  --status-success-bg: var(--color-success-light);
+  --status-success-text: var(--color-success-dark);
+  --status-success-border: var(--color-success);
+
+  --status-warning-bg: var(--color-warning-light);
+  --status-warning-text: var(--color-warning-dark);
+  --status-warning-border: var(--color-warning);
+
+  --status-error-bg: var(--color-error-light);
+  --status-error-text: var(--color-error-dark);
+  --status-error-border: var(--color-error);
+
+  --status-info-bg: var(--color-info-light);
+  --status-info-text: var(--color-info-dark);
+  --status-info-border: var(--color-info);
+
+  /* ─── Shadow ──────────────────────────────────────── */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* ─── Surface ─────────────────────────────────── */
+    --surface-page: var(--color-neutral-950);
+    --surface-card: var(--color-neutral-900);
+    --surface-elevated: var(--color-neutral-800);
+    --surface-overlay: var(--color-neutral-700);
+
+    /* ─── Text ────────────────────────────────────── */
+    --text-primary: var(--color-neutral-50);
+    --text-secondary: var(--color-neutral-400);
+    --text-muted: var(--color-neutral-600);
+    --text-inverted: var(--color-neutral-900);
+
+    /* ─── Border ──────────────────────────────────── */
+    --border-subtle: var(--color-neutral-800);
+    --border-default: var(--color-neutral-700);
+    --border-strong: var(--color-neutral-600);
+
+    /* ─── Brand ───────────────────────────────────── */
+    --brand-default: var(--color-primary-400);
+    --brand-hover: var(--color-primary-300);
+    --brand-active: var(--color-primary-200);
+    --brand-subtle: var(--color-primary-950);
+    --brand-text: var(--color-primary-300);
+
+    /* ─── Status ──────────────────────────────────── */
+    --status-success-bg: var(--color-success-dark);
+    --status-success-text: var(--color-success-light);
+    --status-success-border: var(--color-success);
+
+    --status-warning-bg: var(--color-warning-dark);
+    --status-warning-text: var(--color-warning-light);
+    --status-warning-border: var(--color-warning);
+
+    --status-error-bg: var(--color-error-dark);
+    --status-error-text: var(--color-error-light);
+    --status-error-border: var(--color-error);
+
+    --status-info-bg: var(--color-info-dark);
+    --status-info-text: var(--color-info-light);
+    --status-info-border: var(--color-info);
+
+    /* ─── Shadow ──────────────────────────────────── */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.4);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.6), 0 8px 10px -6px rgb(0 0 0 / 0.5);
+  }
+}
