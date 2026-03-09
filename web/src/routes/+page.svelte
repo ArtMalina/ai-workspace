@@ -1,5 +1,5 @@
 <script lang="ts">
-    import Hello from '$lib/pages/hello/Hello.svelte';
+  import { Hello } from "$lib/pages/hello";
 </script>
 
 <Hello />
