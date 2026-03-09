@@ -109,3 +109,35 @@
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.4);
   --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.6), 0 8px 10px -6px rgb(0 0 0 / 0.5);
 }
+
+/* ─────────────────────────────────────────────────────────
+   Tailwind utility classes from semantic tokens.
+   Tailwind generates bg-*, text-*, border-* classes
+   that reference CSS variables and react to theme changes.
+   ───────────────────────────────────────────────────────── */
+
+@theme inline {
+  /* Brand — bg-brand, text-brand, border-brand, ... */
+  --color-brand: var(--brand-default);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-active: var(--brand-active);
+  --color-brand-subtle: var(--brand-subtle);
+  --color-brand-text: var(--brand-text);
+
+  /* Surface — bg-surface, bg-surface-card, ... */
+  --color-surface: var(--surface-page);
+  --color-surface-card: var(--surface-card);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-surface-overlay: var(--surface-overlay);
+
+  /* Foreground — text-fg, text-fg-secondary, text-fg-muted, ... */
+  --color-fg: var(--text-primary);
+  --color-fg-secondary: var(--text-secondary);
+  --color-fg-muted: var(--text-muted);
+  --color-fg-inverted: var(--text-inverted);
+
+  /* Border — border-line, border-line-strong, ... */
+  --color-line: var(--border-default);
+  --color-line-subtle: var(--border-subtle);
+  --color-line-strong: var(--border-strong);
+}
