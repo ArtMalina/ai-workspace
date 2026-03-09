@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import { Button } from "$lib/shared/ui";
   import { toggleTheme, getTheme, type Theme } from "$lib/shared/lib/theme";
 
   let theme = $state<Theme>("light");
@@ -14,11 +15,7 @@
   }
 </script>
 
-<button
-  class="ui-button ui-button--sm ui-button--ghost"
-  onclick={handleToggle}
-  aria-label="Toggle theme"
->
+<Button variant="ghost" size="sm" onclick={handleToggle} aria-label="Toggle theme">
   {#if theme === "dark"}
     <!-- Sun -->
     <svg
@@ -51,4 +48,4 @@
       <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
     </svg>
   {/if}
-</button>
+</Button>
