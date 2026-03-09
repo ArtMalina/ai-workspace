@@ -6,24 +6,77 @@
     title: string;
     description?: string;
     href?: string;
+    onrename?: (title: string) => void;
     children?: Snippet;
   }
 
-  let { title, description, href, children }: Props = $props();
+  let { title, description, href, onrename, children }: Props = $props();
+
+  let editing = $state(false);
+  let editValue = $state(title);
+  let inputEl = $state<HTMLInputElement | null>(null);
+
+  $effect(() => {
+    if (editing && inputEl) {
+      inputEl.focus();
+      inputEl.select();
+    }
+  });
+
+  function startEdit(e: MouseEvent) {
+    if (!onrename) return;
+    e.stopPropagation();
+    editValue = title;
+    editing = true;
+  }
+
+  function commit() {
+    const trimmed = editValue.trim();
+    if (trimmed) onrename?.(trimmed);
+    editing = false;
+  }
+
+  function onKeyDown(e: KeyboardEvent) {
+    if (e.key === "Enter") commit();
+    if (e.key === "Escape") editing = false;
+  }
 </script>
+
+{#snippet content()}
+  <div class="card-folder__content">
+    {#if editing}
+      <input
+        bind:this={inputEl}
+        bind:value={editValue}
+        class="card-folder__input"
+        onblur={commit}
+        onkeydown={onKeyDown}
+        onmousedown={(e) => e.stopPropagation()}
+      />
+    {:else}
+      <span
+        role="button"
+        tabindex="0"
+        class="card-folder__title"
+        ondblclick={startEdit}
+        onmousedown={(e) => onrename && e.stopPropagation()}
+      >
+        {title}
+      </span>
+    {/if}
+    {#if description}
+      <span class="card-folder__description">{description}</span>
+    {/if}
+    {@render children?.()}
+  </div>
+{/snippet}
 
 {#if href}
   <a class="card-folder" {href}>
     <div class="card-folder__tab"></div>
     <div class="card-folder__body">
       <Folder class="card-folder__icon" />
-      <div class="card-folder__content">
-        <span class="card-folder__title">{title}</span>
-        {#if description}
-          <span class="card-folder__description">{description}</span>
-        {/if}
-        {@render children?.()}
-      </div>
+      {@render content()}
     </div>
   </a>
 {:else}
@@ -31,13 +84,7 @@
     <div class="card-folder__tab"></div>
     <div class="card-folder__body">
       <Folder class="card-folder__icon" />
-      <div class="card-folder__content">
-        <span class="card-folder__title">{title}</span>
-        {#if description}
-          <span class="card-folder__description">{description}</span>
-        {/if}
-        {@render children?.()}
-      </div>
+      {@render content()}
     </div>
   </div>
 {/if}
@@ -93,6 +140,8 @@
     flex-direction: column;
     gap: var(--spacing-1);
     overflow: hidden;
+    min-width: 0;
+    flex: 1;
   }
 
   .card-folder__title {
@@ -102,6 +151,20 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    cursor: text;
+  }
+
+  .card-folder__input {
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--brand-default);
+    outline: none;
+    width: 100%;
+    padding: 0;
+    caret-color: var(--brand-default);
   }
 
   .card-folder__description {

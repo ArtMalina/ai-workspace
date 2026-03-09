@@ -4,4 +4,3 @@ export function load() {
   // route guard
   redirect(307, "/welcome");
 }
-

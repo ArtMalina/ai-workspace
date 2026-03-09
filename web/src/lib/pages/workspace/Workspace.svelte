@@ -38,6 +38,11 @@
     draggingId = null;
   }
 
+  function renameFolder(id: string, newTitle: string) {
+    const idx = folders.findIndex((f) => f.id === id);
+    if (idx !== -1) folders[idx].title = newTitle;
+  }
+
   function createFolder() {
     folders.push({
       id: crypto.randomUUID(),
@@ -65,7 +70,11 @@
       onmousedown={(e) => onMouseDown(e, folder.id)}
       role="none"
     >
-      <CardFolder title={folder.title} description={folder.description} />
+      <CardFolder
+        title={folder.title}
+        description={folder.description}
+        onrename={(newTitle) => renameFolder(folder.id, newTitle)}
+      />
     </div>
   {/each}
 
