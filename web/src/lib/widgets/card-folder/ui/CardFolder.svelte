@@ -168,8 +168,8 @@
   }
 
   .card-folder__description {
-    font-size: var(--text-xs);
-    color: var(--text-muted);
+    font-size: var(--text-sm);
+    color: var(--text-subtle);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;

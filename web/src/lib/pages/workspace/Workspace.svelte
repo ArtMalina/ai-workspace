@@ -11,8 +11,14 @@
   }
 
   let folders = $state<FolderItem[]>([
-    { id: crypto.randomUUID(), title: "Projects", description: "Getting started", x: 48, y: 48 },
-    { id: crypto.randomUUID(), title: "Documents", description: "12 files", x: 280, y: 48 },
+    { id: crypto.randomUUID(), title: "Ideas", description: "Getting started", x: 40, y: 48 },
+    {
+      id: crypto.randomUUID(),
+      title: "Project Alpha",
+      description: "12 files, 2 collections",
+      x: 320,
+      y: 48,
+    },
   ]);
 
   let draggingId = $state<string | null>(null);
