@@ -106,10 +106,10 @@
   .card-folder__tab {
     align-self: flex-start;
     width: 5rem;
-    height: 0.625rem;
+    height: 0.75rem;
     background-color: var(--surface-elevated);
     border-radius: var(--radius-md) var(--radius-md) 0 0;
-    border: 1px solid var(--border-default);
+    border: 2px solid var(--border-default);
     border-bottom: none;
     transition: background-color var(--duration-fast) var(--ease-default);
   }
@@ -120,7 +120,7 @@
     gap: var(--spacing-3);
     padding: var(--spacing-4);
     background-color: var(--surface-elevated);
-    border: 1px solid var(--border-default);
+    border: 2px solid var(--border-default);
     border-radius: 0 var(--radius-md) var(--radius-md) var(--radius-md);
     transition:
       background-color var(--duration-fast) var(--ease-default),
@@ -152,6 +152,9 @@
     overflow: hidden;
     text-overflow: ellipsis;
     cursor: text;
+  }
+  .card-folder__title:hover {
+    color: var(--color-brand-text);
   }
 
   .card-folder__input {

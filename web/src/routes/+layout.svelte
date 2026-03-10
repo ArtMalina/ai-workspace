@@ -11,7 +11,7 @@
   let loaded = $state(false);
 
   onMount(async () => {
-    initTheme();
+    // initTheme();
     await tick();
     loaded = true;
   });

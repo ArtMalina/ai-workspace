@@ -55,14 +55,18 @@
     font-size: var(--text-base);
   }
 
-  /* ─── Colors — define palette via CSS custom properties ─ */
+  /* ─── Colors — define palette via CSS custom properties ─
+     Each color class sets private tokens consumed by the
+     variant rules below. Fill bg/fg come from theme tokens
+     so they automatically switch for light ↔ dark.
+     ──────────────────────────────────────────────────────── */
 
   .ui-button--brand {
-    --_btn-solid-bg: var(--brand-default);
-    --_btn-solid-bg-hover: var(--brand-hover);
-    --_btn-solid-bg-active: var(--brand-active);
-    --_btn-solid-fg: white;
-    --_btn-accent: var(--brand-default);
+    /* filled: primary-600+white (light) / primary-400+neutral-950 (dark) */
+    --_btn-solid-bg: var(--btn-brand-fill-bg);
+    --_btn-solid-fg: var(--btn-brand-fill-fg);
+    /* outline/ghost text: brand-hover = primary-600 (5.8:1 light) / primary-300 (>10:1 dark) */
+    --_btn-accent: var(--brand-hover);
     --_btn-accent-hover: var(--brand-hover);
     --_btn-subtle: var(--brand-subtle);
     --_btn-fg: var(--text-primary);
@@ -70,10 +74,10 @@
   }
 
   .ui-button--success {
-    --_btn-solid-bg: var(--status-success-border);
-    --_btn-solid-bg-hover: var(--status-success-text);
-    --_btn-solid-bg-active: var(--status-success-text);
-    --_btn-solid-fg: white;
+    /* filled: success-dark+white (light) / success+neutral-950 (dark) */
+    --_btn-solid-bg: var(--btn-success-fill-bg);
+    --_btn-solid-fg: var(--btn-success-fill-fg);
+    /* outline/ghost text: success-dark (5.0:1 light) / success-light (~17:1 dark) */
     --_btn-accent: var(--status-success-text);
     --_btn-accent-hover: var(--status-success-text);
     --_btn-subtle: var(--status-success-bg);
@@ -82,10 +86,10 @@
   }
 
   .ui-button--warning {
-    --_btn-solid-bg: var(--status-warning-border);
-    --_btn-solid-bg-hover: var(--status-warning-text);
-    --_btn-solid-bg-active: var(--status-warning-text);
-    --_btn-solid-fg: white;
+    /* filled: warning-dark+white (light) / warning+neutral-950 (dark) */
+    --_btn-solid-bg: var(--btn-warning-fill-bg);
+    --_btn-solid-fg: var(--btn-warning-fill-fg);
+    /* outline/ghost text: warning-dark (4.9:1 light) / warning-light (~18:1 dark) */
     --_btn-accent: var(--status-warning-text);
     --_btn-accent-hover: var(--status-warning-text);
     --_btn-subtle: var(--status-warning-bg);
@@ -94,10 +98,10 @@
   }
 
   .ui-button--error {
-    --_btn-solid-bg: var(--status-error-border);
-    --_btn-solid-bg-hover: var(--status-error-text);
-    --_btn-solid-bg-active: var(--status-error-text);
-    --_btn-solid-fg: white;
+    /* filled: error-dark+white (light) / error+neutral-950 (dark) */
+    --_btn-solid-bg: var(--btn-error-fill-bg);
+    --_btn-solid-fg: var(--btn-error-fill-fg);
+    /* outline/ghost text: error-dark (6.5:1 light) / error-light (~17:1 dark) */
     --_btn-accent: var(--status-error-text);
     --_btn-accent-hover: var(--status-error-text);
     --_btn-subtle: var(--status-error-bg);
@@ -106,10 +110,10 @@
   }
 
   .ui-button--info {
-    --_btn-solid-bg: var(--status-info-border);
-    --_btn-solid-bg-hover: var(--status-info-text);
-    --_btn-solid-bg-active: var(--status-info-text);
-    --_btn-solid-fg: white;
+    /* filled: info-dark+white (light) / info+neutral-950 (dark) */
+    --_btn-solid-bg: var(--btn-info-fill-bg);
+    --_btn-solid-fg: var(--btn-info-fill-fg);
+    /* outline/ghost text: info-dark (6.7:1 light) / info-light (~17:1 dark) */
     --_btn-accent: var(--status-info-text);
     --_btn-accent-hover: var(--status-info-text);
     --_btn-subtle: var(--status-info-bg);
@@ -125,12 +129,12 @@
     border-color: var(--_btn-solid-bg);
   }
   .ui-button--filled:hover:not(:disabled) {
-    background-color: var(--_btn-solid-bg-hover);
-    border-color: var(--_btn-solid-bg-hover);
+    background-color: color-mix(in srgb, var(--_btn-solid-bg) 85%, black);
+    border-color: color-mix(in srgb, var(--_btn-solid-bg) 85%, black);
   }
   .ui-button--filled:active:not(:disabled) {
-    background-color: var(--_btn-solid-bg-active);
-    border-color: var(--_btn-solid-bg-active);
+    background-color: color-mix(in srgb, var(--_btn-solid-bg) 75%, black);
+    border-color: color-mix(in srgb, var(--_btn-solid-bg) 75%, black);
   }
 
   .ui-button--outline {

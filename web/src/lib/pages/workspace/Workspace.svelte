@@ -1,6 +1,7 @@
 <script lang="ts">
   import { CardFolder } from "$lib/widgets";
   import { Button } from "$lib/shared/ui";
+  import { CreateFolder } from "$lib/features/folder";
 
   interface FolderItem {
     id: string;
@@ -85,7 +86,7 @@
   {/each}
 
   <div class="workspace__actions">
-    <Button variant="outline" size="sm" onclick={createFolder}>+ New Folder</Button>
+    <CreateFolder onCreate={createFolder} />
   </div>
 </div>
 

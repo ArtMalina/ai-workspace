@@ -58,6 +58,19 @@
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
   --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+
+  /* Button fill — accessible bg/fg pairs for filled variant (WCAG AA ≥ 4.5:1) */
+  /* Light: dark-variant bg + white text */
+  --btn-brand-fill-bg: var(--color-primary-600);   /* #4f46e5 — 5.8:1 vs white ✓ */
+  --btn-brand-fill-fg: white;
+  --btn-success-fill-bg: var(--color-success-dark); /* #15803d — 5.0:1 vs white ✓ */
+  --btn-success-fill-fg: white;
+  --btn-warning-fill-bg: var(--color-warning-dark); /* #a16207 — 4.9:1 vs white ✓ */
+  --btn-warning-fill-fg: white;
+  --btn-error-fill-bg: var(--color-error-dark);     /* #b91c1c — 6.5:1 vs white ✓ */
+  --btn-error-fill-fg: white;
+  --btn-info-fill-bg: var(--color-info-dark);       /* #1d4ed8 — 6.7:1 vs white ✓ */
+  --btn-info-fill-fg: white;
 }
 
 /* ─── Dark ────────────────────────────────────────────── */
@@ -110,6 +123,19 @@
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.4);
   --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.6), 0 8px 10px -6px rgb(0 0 0 / 0.5);
+
+  /* Button fill — accessible bg/fg pairs for filled variant (WCAG AA ≥ 4.5:1) */
+  /* Dark: mid-tone bg + neutral-950 (near-black) text — bright button on dark page */
+  --btn-brand-fill-bg: var(--color-primary-400);   /* #818cf8 — 7.2:1 vs neutral-950 ✓ */
+  --btn-brand-fill-fg: var(--color-neutral-950);
+  --btn-success-fill-bg: var(--color-success);      /* #22c55e — 9.0:1 vs neutral-950 ✓ */
+  --btn-success-fill-fg: var(--color-neutral-950);
+  --btn-warning-fill-bg: var(--color-warning);      /* #eab308 — 10.8:1 vs neutral-950 ✓ */
+  --btn-warning-fill-fg: var(--color-neutral-950);
+  --btn-error-fill-bg: var(--color-error);          /* #ef4444 — 5.6:1 vs neutral-950 ✓ */
+  --btn-error-fill-fg: var(--color-neutral-950);
+  --btn-info-fill-bg: var(--color-info);            /* #3b82f6 — 5.9:1 vs neutral-950 ✓ */
+  --btn-info-fill-fg: var(--color-neutral-950);
 }
 
 /* ─────────────────────────────────────────────────────────
