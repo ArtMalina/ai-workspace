@@ -61,7 +61,7 @@
   }
 
   .app-shell__footer {
-    padding: var(--spacing-3) var(--spacing-6);
+    padding: var(--spacing-1) var(--spacing-6);
     background-color: var(--surface-card);
     border-top: 1px solid var(--border-subtle);
   }

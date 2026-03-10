@@ -117,6 +117,11 @@
 
   /* ─── Sizes ───────────────────────────────────────────── */
 
+  .ui-button--xs {
+    padding: var(--spacing-1) var(--spacing-2);
+    font-size: var(--text-xs);
+  }
+
   .ui-button--sm {
     padding: var(--spacing-1) var(--spacing-3);
     font-size: var(--text-sm);
@@ -157,6 +162,22 @@
 
   .ui-button--ghost:active:not(:disabled) {
     background-color: var(--surface-overlay);
+  }
+
+  .ui-button--outline {
+    background-color: transparent;
+    color: var(--brand-default);
+    border-color: var(--brand-default);
+  }
+
+  .ui-button--outline:hover:not(:disabled) {
+    background-color: var(--brand-subtle);
+  }
+
+  .ui-button--outline:active:not(:disabled) {
+    background-color: var(--brand-subtle);
+    border-color: var(--brand-hover);
+    color: var(--brand-hover);
   }
 
   /* ═══════════════════════════════════════════════════════

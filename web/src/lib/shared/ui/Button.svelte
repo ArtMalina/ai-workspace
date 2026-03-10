@@ -3,8 +3,8 @@
   import type { Snippet } from "svelte";
 
   interface Props extends HTMLButtonAttributes {
-    variant?: "primary" | "ghost";
-    size?: "sm" | "md";
+    variant?: "primary" | "ghost" | "outline";
+    size?: "sm" | "md" | "xs";
     class?: string;
     children?: Snippet;
   }

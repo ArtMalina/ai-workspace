@@ -85,7 +85,7 @@
   {/each}
 
   <div class="workspace__actions">
-    <Button variant="ghost" size="sm" onclick={createFolder}>+ New Folder</Button>
+    <Button variant="outline" size="sm" onclick={createFolder}>+ New Folder</Button>
   </div>
 </div>
 

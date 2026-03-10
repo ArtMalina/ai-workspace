@@ -3,7 +3,7 @@
   import favicon from "$lib/assets/favicon.svg";
   import "$lib/app/styles/global.css";
   import { AppShell } from "$lib/app";
-  import { Header } from "$lib/widgets";
+  import { Header, Footer } from "$lib/widgets";
   import { ThemeToggle } from "$lib/features/theme-toggle";
   import { initTheme } from "$lib/shared/lib/theme";
 
@@ -29,6 +29,10 @@
 
     {#snippet headerEnd()}
       <ThemeToggle />
+    {/snippet}
+
+    {#snippet footer()}
+      <Footer />
     {/snippet}
 
     {@render children()}
