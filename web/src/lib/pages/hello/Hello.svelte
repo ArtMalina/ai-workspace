@@ -10,7 +10,7 @@
     </h1>
     <p class="ui-text--card m-0">Your AI-powered workspace is ready.</p>
     <div class="flex gap-3 mt-2">
-      <Link href="/workspace" variant="primary" size="md">Get Started</Link>
+      <Link href="/workspace" variant="filled" size="md">Get Started</Link>
       <Button variant="ghost" size="md">Learn More</Button>
     </div>
   </div>

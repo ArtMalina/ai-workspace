@@ -1,6 +1,6 @@
 /* ─────────────────────────────────────────────────────────
    Button — ui-button
-   Usage: class="ui-button ui-button--{size} ui-button--{variant}"
+   Usage: class="ui-button ui-button--{size} ui-button--{variant} ui-button--{color}"
    ───────────────────────────────────────────────────────── */
 
 @layer components {
@@ -55,201 +55,107 @@
     font-size: var(--text-base);
   }
 
-  /* ─── Brand variants ──────────────────────────────────── */
+  /* ─── Colors — define palette via CSS custom properties ─ */
 
-  .ui-button--primary {
-    background-color: var(--brand-default);
-    color: white;
-    border-color: var(--brand-default);
-  }
-  .ui-button--primary:hover:not(:disabled) {
-    background-color: var(--brand-hover);
-    border-color: var(--brand-hover);
-  }
-  .ui-button--primary:active:not(:disabled) {
-    background-color: var(--brand-active);
-    border-color: var(--brand-active);
+  .ui-button--brand {
+    --_btn-solid-bg: var(--brand-default);
+    --_btn-solid-bg-hover: var(--brand-hover);
+    --_btn-solid-bg-active: var(--brand-active);
+    --_btn-solid-fg: white;
+    --_btn-accent: var(--brand-default);
+    --_btn-accent-hover: var(--brand-hover);
+    --_btn-subtle: var(--brand-subtle);
+    --_btn-fg: var(--text-primary);
+    --_btn-ghost-hover: var(--surface-elevated);
   }
 
-  .ui-button--ghost {
-    background-color: transparent;
-    color: var(--text-primary);
-    border-color: transparent;
+  .ui-button--success {
+    --_btn-solid-bg: var(--status-success-border);
+    --_btn-solid-bg-hover: var(--status-success-text);
+    --_btn-solid-bg-active: var(--status-success-text);
+    --_btn-solid-fg: white;
+    --_btn-accent: var(--status-success-text);
+    --_btn-accent-hover: var(--status-success-text);
+    --_btn-subtle: var(--status-success-bg);
+    --_btn-fg: var(--status-success-text);
+    --_btn-ghost-hover: var(--status-success-bg);
   }
-  .ui-button--ghost:hover:not(:disabled) {
-    background-color: var(--surface-elevated);
+
+  .ui-button--warning {
+    --_btn-solid-bg: var(--status-warning-border);
+    --_btn-solid-bg-hover: var(--status-warning-text);
+    --_btn-solid-bg-active: var(--status-warning-text);
+    --_btn-solid-fg: white;
+    --_btn-accent: var(--status-warning-text);
+    --_btn-accent-hover: var(--status-warning-text);
+    --_btn-subtle: var(--status-warning-bg);
+    --_btn-fg: var(--status-warning-text);
+    --_btn-ghost-hover: var(--status-warning-bg);
   }
-  .ui-button--ghost:active:not(:disabled) {
-    background-color: var(--surface-overlay);
+
+  .ui-button--error {
+    --_btn-solid-bg: var(--status-error-border);
+    --_btn-solid-bg-hover: var(--status-error-text);
+    --_btn-solid-bg-active: var(--status-error-text);
+    --_btn-solid-fg: white;
+    --_btn-accent: var(--status-error-text);
+    --_btn-accent-hover: var(--status-error-text);
+    --_btn-subtle: var(--status-error-bg);
+    --_btn-fg: var(--status-error-text);
+    --_btn-ghost-hover: var(--status-error-bg);
+  }
+
+  .ui-button--info {
+    --_btn-solid-bg: var(--status-info-border);
+    --_btn-solid-bg-hover: var(--status-info-text);
+    --_btn-solid-bg-active: var(--status-info-text);
+    --_btn-solid-fg: white;
+    --_btn-accent: var(--status-info-text);
+    --_btn-accent-hover: var(--status-info-text);
+    --_btn-subtle: var(--status-info-bg);
+    --_btn-fg: var(--status-info-text);
+    --_btn-ghost-hover: var(--status-info-bg);
+  }
+
+  /* ─── Variants — consume the palette ─────────────────── */
+
+  .ui-button--filled {
+    background-color: var(--_btn-solid-bg);
+    color: var(--_btn-solid-fg);
+    border-color: var(--_btn-solid-bg);
+  }
+  .ui-button--filled:hover:not(:disabled) {
+    background-color: var(--_btn-solid-bg-hover);
+    border-color: var(--_btn-solid-bg-hover);
+  }
+  .ui-button--filled:active:not(:disabled) {
+    background-color: var(--_btn-solid-bg-active);
+    border-color: var(--_btn-solid-bg-active);
   }
 
   .ui-button--outline {
     background-color: transparent;
-    color: var(--brand-default);
-    border-color: var(--brand-default);
+    color: var(--_btn-accent);
+    border-color: var(--_btn-accent);
   }
   .ui-button--outline:hover:not(:disabled) {
-    background-color: var(--brand-subtle);
+    background-color: var(--_btn-subtle);
+    color: var(--_btn-accent-hover);
+    border-color: var(--_btn-accent-hover);
   }
   .ui-button--outline:active:not(:disabled) {
-    background-color: var(--brand-subtle);
-    border-color: var(--brand-hover);
-    color: var(--brand-hover);
+    background-color: var(--_btn-subtle);
   }
 
-  /* ─── Success ─────────────────────────────────────────── */
-
-  .ui-button--success {
-    background-color: var(--status-success-border);
-    color: white;
-    border-color: var(--status-success-border);
-  }
-  .ui-button--success:hover:not(:disabled) {
-    background-color: var(--status-success-text);
-    border-color: var(--status-success-text);
-  }
-  .ui-button--success:active:not(:disabled) {
-    background-color: var(--status-success-text);
-  }
-
-  .ui-button--success-outline {
+  .ui-button--ghost {
     background-color: transparent;
-    color: var(--status-success-text);
-    border-color: var(--status-success-border);
-  }
-  .ui-button--success-outline:hover:not(:disabled) {
-    background-color: var(--status-success-bg);
-  }
-  .ui-button--success-outline:active:not(:disabled) {
-    background-color: var(--status-success-bg);
-  }
-
-  .ui-button--success-ghost {
-    background-color: transparent;
-    color: var(--status-success-text);
+    color: var(--_btn-fg);
     border-color: transparent;
   }
-  .ui-button--success-ghost:hover:not(:disabled) {
-    background-color: var(--status-success-bg);
+  .ui-button--ghost:hover:not(:disabled) {
+    background-color: var(--_btn-ghost-hover);
   }
-  .ui-button--success-ghost:active:not(:disabled) {
-    background-color: var(--status-success-bg);
-  }
-
-  /* ─── Warning ─────────────────────────────────────────── */
-
-  .ui-button--warning {
-    background-color: var(--status-warning-border);
-    color: white;
-    border-color: var(--status-warning-border);
-  }
-  .ui-button--warning:hover:not(:disabled) {
-    background-color: var(--status-warning-text);
-    border-color: var(--status-warning-text);
-  }
-  .ui-button--warning:active:not(:disabled) {
-    background-color: var(--status-warning-text);
-  }
-
-  .ui-button--warning-outline {
-    background-color: transparent;
-    color: var(--status-warning-text);
-    border-color: var(--status-warning-border);
-  }
-  .ui-button--warning-outline:hover:not(:disabled) {
-    background-color: var(--status-warning-bg);
-  }
-  .ui-button--warning-outline:active:not(:disabled) {
-    background-color: var(--status-warning-bg);
-  }
-
-  .ui-button--warning-ghost {
-    background-color: transparent;
-    color: var(--status-warning-text);
-    border-color: transparent;
-  }
-  .ui-button--warning-ghost:hover:not(:disabled) {
-    background-color: var(--status-warning-bg);
-  }
-  .ui-button--warning-ghost:active:not(:disabled) {
-    background-color: var(--status-warning-bg);
-  }
-
-  /* ─── Error ───────────────────────────────────────────── */
-
-  .ui-button--error {
-    background-color: var(--status-error-border);
-    color: white;
-    border-color: var(--status-error-border);
-  }
-  .ui-button--error:hover:not(:disabled) {
-    background-color: var(--status-error-text);
-    border-color: var(--status-error-text);
-  }
-  .ui-button--error:active:not(:disabled) {
-    background-color: var(--status-error-text);
-  }
-
-  .ui-button--error-outline {
-    background-color: transparent;
-    color: var(--status-error-text);
-    border-color: var(--status-error-border);
-  }
-  .ui-button--error-outline:hover:not(:disabled) {
-    background-color: var(--status-error-bg);
-  }
-  .ui-button--error-outline:active:not(:disabled) {
-    background-color: var(--status-error-bg);
-  }
-
-  .ui-button--error-ghost {
-    background-color: transparent;
-    color: var(--status-error-text);
-    border-color: transparent;
-  }
-  .ui-button--error-ghost:hover:not(:disabled) {
-    background-color: var(--status-error-bg);
-  }
-  .ui-button--error-ghost:active:not(:disabled) {
-    background-color: var(--status-error-bg);
-  }
-
-  /* ─── Info ────────────────────────────────────────────── */
-
-  .ui-button--info {
-    background-color: var(--status-info-border);
-    color: white;
-    border-color: var(--status-info-border);
-  }
-  .ui-button--info:hover:not(:disabled) {
-    background-color: var(--status-info-text);
-    border-color: var(--status-info-text);
-  }
-  .ui-button--info:active:not(:disabled) {
-    background-color: var(--status-info-text);
-  }
-
-  .ui-button--info-outline {
-    background-color: transparent;
-    color: var(--status-info-text);
-    border-color: var(--status-info-border);
-  }
-  .ui-button--info-outline:hover:not(:disabled) {
-    background-color: var(--status-info-bg);
-  }
-  .ui-button--info-outline:active:not(:disabled) {
-    background-color: var(--status-info-bg);
-  }
-
-  .ui-button--info-ghost {
-    background-color: transparent;
-    color: var(--status-info-text);
-    border-color: transparent;
-  }
-  .ui-button--info-ghost:hover:not(:disabled) {
-    background-color: var(--status-info-bg);
-  }
-  .ui-button--info-ghost:active:not(:disabled) {
-    background-color: var(--status-info-bg);
+  .ui-button--ghost:active:not(:disabled) {
+    background-color: var(--_btn-subtle);
   }
 }

@@ -3,14 +3,16 @@
   import type { Snippet } from "svelte";
 
   interface Props extends HTMLButtonAttributes {
-    variant?: "primary" | "ghost" | "outline";
-    size?: "sm" | "md" | "xs";
+    variant?: "filled" | "outline" | "ghost";
+    color?: "brand" | "success" | "warning" | "error" | "info";
+    size?: "xs" | "sm" | "md";
     class?: string;
     children?: Snippet;
   }
 
   let {
-    variant = "primary",
+    variant = "filled",
+    color = "brand",
     size = "md",
     class: className = "",
     disabled = false,
@@ -20,7 +22,7 @@
 </script>
 
 <button
-  class={`ui-button ui-button--${size} ui-button--${variant} ${className}`.trim()}
+  class={`ui-button ui-button--${size} ui-button--${variant} ui-button--${color} ${className}`.trim()}
   {disabled}
   {...restProps}
 >
