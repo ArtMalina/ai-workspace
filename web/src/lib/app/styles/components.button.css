@@ -1,0 +1,255 @@
+/* ─────────────────────────────────────────────────────────
+   Button — ui-button
+   Usage: class="ui-button ui-button--{size} ui-button--{variant}"
+   ───────────────────────────────────────────────────────── */
+
+@layer components {
+  /* ─── Base ────────────────────────────────────────────── */
+
+  .ui-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-2);
+    border-radius: var(--radius-md);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--leading-tight);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition:
+      background-color var(--duration-fast) var(--ease-default),
+      border-color var(--duration-fast) var(--ease-default),
+      color var(--duration-fast) var(--ease-default),
+      box-shadow var(--duration-fast) var(--ease-default);
+    text-decoration: none;
+    white-space: nowrap;
+    user-select: none;
+  }
+
+  .ui-button:focus-visible {
+    outline: 2px solid var(--brand-default);
+    outline-offset: 2px;
+  }
+
+  .ui-button:disabled,
+  .ui-button[aria-disabled="true"] {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  /* ─── Sizes ───────────────────────────────────────────── */
+
+  .ui-button--xs {
+    padding: var(--spacing-1) var(--spacing-2);
+    font-size: var(--text-xs);
+  }
+
+  .ui-button--sm {
+    padding: var(--spacing-1) var(--spacing-3);
+    font-size: var(--text-sm);
+  }
+
+  .ui-button--md {
+    padding: var(--spacing-2) var(--spacing-4);
+    font-size: var(--text-base);
+  }
+
+  /* ─── Brand variants ──────────────────────────────────── */
+
+  .ui-button--primary {
+    background-color: var(--brand-default);
+    color: white;
+    border-color: var(--brand-default);
+  }
+  .ui-button--primary:hover:not(:disabled) {
+    background-color: var(--brand-hover);
+    border-color: var(--brand-hover);
+  }
+  .ui-button--primary:active:not(:disabled) {
+    background-color: var(--brand-active);
+    border-color: var(--brand-active);
+  }
+
+  .ui-button--ghost {
+    background-color: transparent;
+    color: var(--text-primary);
+    border-color: transparent;
+  }
+  .ui-button--ghost:hover:not(:disabled) {
+    background-color: var(--surface-elevated);
+  }
+  .ui-button--ghost:active:not(:disabled) {
+    background-color: var(--surface-overlay);
+  }
+
+  .ui-button--outline {
+    background-color: transparent;
+    color: var(--brand-default);
+    border-color: var(--brand-default);
+  }
+  .ui-button--outline:hover:not(:disabled) {
+    background-color: var(--brand-subtle);
+  }
+  .ui-button--outline:active:not(:disabled) {
+    background-color: var(--brand-subtle);
+    border-color: var(--brand-hover);
+    color: var(--brand-hover);
+  }
+
+  /* ─── Success ─────────────────────────────────────────── */
+
+  .ui-button--success {
+    background-color: var(--status-success-border);
+    color: white;
+    border-color: var(--status-success-border);
+  }
+  .ui-button--success:hover:not(:disabled) {
+    background-color: var(--status-success-text);
+    border-color: var(--status-success-text);
+  }
+  .ui-button--success:active:not(:disabled) {
+    background-color: var(--status-success-text);
+  }
+
+  .ui-button--success-outline {
+    background-color: transparent;
+    color: var(--status-success-text);
+    border-color: var(--status-success-border);
+  }
+  .ui-button--success-outline:hover:not(:disabled) {
+    background-color: var(--status-success-bg);
+  }
+  .ui-button--success-outline:active:not(:disabled) {
+    background-color: var(--status-success-bg);
+  }
+
+  .ui-button--success-ghost {
+    background-color: transparent;
+    color: var(--status-success-text);
+    border-color: transparent;
+  }
+  .ui-button--success-ghost:hover:not(:disabled) {
+    background-color: var(--status-success-bg);
+  }
+  .ui-button--success-ghost:active:not(:disabled) {
+    background-color: var(--status-success-bg);
+  }
+
+  /* ─── Warning ─────────────────────────────────────────── */
+
+  .ui-button--warning {
+    background-color: var(--status-warning-border);
+    color: white;
+    border-color: var(--status-warning-border);
+  }
+  .ui-button--warning:hover:not(:disabled) {
+    background-color: var(--status-warning-text);
+    border-color: var(--status-warning-text);
+  }
+  .ui-button--warning:active:not(:disabled) {
+    background-color: var(--status-warning-text);
+  }
+
+  .ui-button--warning-outline {
+    background-color: transparent;
+    color: var(--status-warning-text);
+    border-color: var(--status-warning-border);
+  }
+  .ui-button--warning-outline:hover:not(:disabled) {
+    background-color: var(--status-warning-bg);
+  }
+  .ui-button--warning-outline:active:not(:disabled) {
+    background-color: var(--status-warning-bg);
+  }
+
+  .ui-button--warning-ghost {
+    background-color: transparent;
+    color: var(--status-warning-text);
+    border-color: transparent;
+  }
+  .ui-button--warning-ghost:hover:not(:disabled) {
+    background-color: var(--status-warning-bg);
+  }
+  .ui-button--warning-ghost:active:not(:disabled) {
+    background-color: var(--status-warning-bg);
+  }
+
+  /* ─── Error ───────────────────────────────────────────── */
+
+  .ui-button--error {
+    background-color: var(--status-error-border);
+    color: white;
+    border-color: var(--status-error-border);
+  }
+  .ui-button--error:hover:not(:disabled) {
+    background-color: var(--status-error-text);
+    border-color: var(--status-error-text);
+  }
+  .ui-button--error:active:not(:disabled) {
+    background-color: var(--status-error-text);
+  }
+
+  .ui-button--error-outline {
+    background-color: transparent;
+    color: var(--status-error-text);
+    border-color: var(--status-error-border);
+  }
+  .ui-button--error-outline:hover:not(:disabled) {
+    background-color: var(--status-error-bg);
+  }
+  .ui-button--error-outline:active:not(:disabled) {
+    background-color: var(--status-error-bg);
+  }
+
+  .ui-button--error-ghost {
+    background-color: transparent;
+    color: var(--status-error-text);
+    border-color: transparent;
+  }
+  .ui-button--error-ghost:hover:not(:disabled) {
+    background-color: var(--status-error-bg);
+  }
+  .ui-button--error-ghost:active:not(:disabled) {
+    background-color: var(--status-error-bg);
+  }
+
+  /* ─── Info ────────────────────────────────────────────── */
+
+  .ui-button--info {
+    background-color: var(--status-info-border);
+    color: white;
+    border-color: var(--status-info-border);
+  }
+  .ui-button--info:hover:not(:disabled) {
+    background-color: var(--status-info-text);
+    border-color: var(--status-info-text);
+  }
+  .ui-button--info:active:not(:disabled) {
+    background-color: var(--status-info-text);
+  }
+
+  .ui-button--info-outline {
+    background-color: transparent;
+    color: var(--status-info-text);
+    border-color: var(--status-info-border);
+  }
+  .ui-button--info-outline:hover:not(:disabled) {
+    background-color: var(--status-info-bg);
+  }
+  .ui-button--info-outline:active:not(:disabled) {
+    background-color: var(--status-info-bg);
+  }
+
+  .ui-button--info-ghost {
+    background-color: transparent;
+    color: var(--status-info-text);
+    border-color: transparent;
+  }
+  .ui-button--info-ghost:hover:not(:disabled) {
+    background-color: var(--status-info-bg);
+  }
+  .ui-button--info-ghost:active:not(:disabled) {
+    background-color: var(--status-info-bg);
+  }
+}
