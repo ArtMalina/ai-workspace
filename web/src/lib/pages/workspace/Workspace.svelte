@@ -2,23 +2,41 @@
   import { CardFolder } from "$lib/widgets";
   import { Button } from "$lib/shared/ui";
   import { CreateFolder } from "$lib/features/folder";
+  import type { LlmBrandTypes } from "$lib/entities/llm";
 
   interface FolderItem {
     id: string;
     title: string;
+    llmBrand?: LlmBrandTypes;
     description: string;
     x: number;
     y: number;
   }
 
   let folders = $state<FolderItem[]>([
-    { id: crypto.randomUUID(), title: "Ideas", description: "Getting started", x: 40, y: 48 },
+    {
+      id: crypto.randomUUID(),
+      title: "Ideas",
+      description: "2 chats",
+      llmBrand: "openai",
+      x: 40,
+      y: 48,
+    },
     {
       id: crypto.randomUUID(),
       title: "Project Alpha",
       description: "12 files, 2 collections",
+      llmBrand: "claude",
       x: 320,
       y: 48,
+    },
+    {
+      id: crypto.randomUUID(),
+      title: "Finance Reports",
+      description: "4 files, 3 collections",
+      llmBrand: "llama",
+      x: 320,
+      y: 208,
     },
   ]);
 
@@ -80,6 +98,7 @@
       <CardFolder
         title={folder.title}
         description={folder.description}
+        llmBrand={folder.llmBrand}
         onrename={(newTitle) => renameFolder(folder.id, newTitle)}
       />
     </div>

@@ -1,16 +1,19 @@
 <script lang="ts">
   import { Folder } from "@lucide/svelte";
   import type { Snippet } from "svelte";
+  import type { LlmBrandTypes } from "$lib/entities/llm";
+  import { LlmBrandIcon } from "$lib/features/llm-brand-icon";
 
   interface Props {
     title: string;
     description?: string;
+    llmBrand?: LlmBrandTypes;
     href?: string;
     onrename?: (title: string) => void;
     children?: Snippet;
   }
 
-  let { title, description, href, onrename, children }: Props = $props();
+  let { title, description, href, onrename, llmBrand, children }: Props = $props();
 
   let editing = $state(false);
   let editValue = $state(title);
@@ -75,7 +78,11 @@
   <a class="card-folder" {href}>
     <div class="card-folder__tab"></div>
     <div class="card-folder__body">
-      <Folder class="card-folder__icon" />
+      {#if llmBrand}
+        <LlmBrandIcon brand={llmBrand} />
+      {:else}
+        <Folder class="card-folder__icon" />
+      {/if}
       {@render content()}
     </div>
   </a>
@@ -83,7 +90,11 @@
   <div class="card-folder">
     <div class="card-folder__tab"></div>
     <div class="card-folder__body">
-      <Folder class="card-folder__icon" />
+      {#if llmBrand}
+        <LlmBrandIcon brand={llmBrand} />
+      {:else}
+        <Folder class="card-folder__icon" />
+      {/if}
       {@render content()}
     </div>
   </div>
