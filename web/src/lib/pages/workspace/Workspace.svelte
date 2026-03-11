@@ -3,6 +3,7 @@
   import { CreateFolder } from "$lib/features/folder";
   import { CreateChat } from "$lib/features/chat";
   import type { LlmBrandTypes } from "$lib/entities/llm";
+  import { goto } from "$app/navigation";
 
   interface FolderItem {
     id: string;
@@ -88,9 +89,11 @@
   let draggingType = $state<DragType | null>(null);
   // non-reactive — used only during drag calculations
   let dragOffset = { x: 0, y: 0 };
+  let didDrag = false;
 
   function onMouseDown(e: MouseEvent, id: string, type: DragType) {
     e.preventDefault();
+    didDrag = false;
     draggingId = id;
     draggingType = type;
     const items = type === "folder" ? folders : chats;
@@ -100,6 +103,7 @@
 
   function onMouseMove(e: MouseEvent) {
     if (!draggingId || !draggingType) return;
+    didDrag = true;
     const items = draggingType === "folder" ? folders : chats;
     const idx = items.findIndex((i) => i.id === draggingId);
     if (idx === -1) return;
@@ -160,6 +164,7 @@
       style:left="{folder.x}px"
       style:top="{folder.y}px"
       onmousedown={(e) => onMouseDown(e, folder.id, "folder")}
+      onclick={() => { if (!didDrag) goto(`/workspace/folders/${folder.id}`); }}
       role="none"
     >
       <CardFolderAlt
@@ -180,6 +185,7 @@
       style:left="{chat.x}px"
       style:top="{chat.y}px"
       onmousedown={(e) => onMouseDown(e, chat.id, "chat")}
+      onclick={() => { if (!didDrag) goto(`/workspace/chats/${chat.id}`); }}
       role="none"
     >
       <CardChat
@@ -207,6 +213,10 @@
 
   .workspace__item {
     position: absolute;
+    cursor: pointer;
+  }
+
+  .workspace__item:active {
     cursor: grab;
   }
 

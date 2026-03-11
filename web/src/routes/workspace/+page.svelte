@@ -1,5 +1,1 @@
-<script lang="ts">
-  import { Workspace } from "$lib/pages/workspace";
-</script>
-
-<Workspace />
+<!-- Canvas is rendered by +layout.svelte -->

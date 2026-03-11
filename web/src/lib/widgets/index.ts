@@ -3,5 +3,5 @@
 export * from "./header";
 export * from "./footer";
 export * from "./card-folder";
-export * from "./card-folder-alt";
 export * from "./card-chat";
+export * from "./workspace-panel";
