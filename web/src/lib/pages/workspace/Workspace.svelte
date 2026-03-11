@@ -3,7 +3,16 @@
   import { CreateFolder } from "$lib/features/folder";
   import { CreateChat } from "$lib/features/chat";
   import { goto } from "$app/navigation";
-  import { folders, chats, moveFolder, moveChat, renameFolder, renameChat, createFolder, createChat } from "$lib/entities/workspace";
+  import {
+    folders,
+    chats,
+    moveFolder,
+    moveChat,
+    renameFolder,
+    renameChat,
+    createFolder,
+    createChat,
+  } from "$lib/entities/workspace";
 
   // ─── Drag ───────────────────────────────────────────────
   type DragType = "folder" | "chat";
@@ -53,7 +62,9 @@
       style:left="{folder.x}px"
       style:top="{folder.y}px"
       onmousedown={(e) => onMouseDown(e, folder.id, "folder")}
-      onclick={() => { if (!didDrag) goto(`/workspace/folders/${folder.id}`); }}
+      onclick={() => {
+        if (!didDrag) goto(`/workspace/folders/${folder.id}`);
+      }}
       role="none"
     >
       <CardFolderAlt
@@ -74,7 +85,9 @@
       style:left="{chat.x}px"
       style:top="{chat.y}px"
       onmousedown={(e) => onMouseDown(e, chat.id, "chat")}
-      onclick={() => { if (!didDrag) goto(`/workspace/chats/${chat.id}`); }}
+      onclick={() => {
+        if (!didDrag) goto(`/workspace/chats/${chat.id}`);
+      }}
       role="none"
     >
       <CardChat

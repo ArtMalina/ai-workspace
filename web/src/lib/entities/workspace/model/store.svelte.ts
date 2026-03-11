@@ -90,7 +90,10 @@ export function renameFolder(id: string, title: string) {
 
 export function moveFolder(id: string, x: number, y: number) {
   const item = folders.find((f) => f.id === id);
-  if (item) { item.x = x; item.y = y; }
+  if (item) {
+    item.x = x;
+    item.y = y;
+  }
 }
 
 export function createFolder() {
@@ -120,7 +123,10 @@ export function updateChatSubtitle(id: string, subtitle: string) {
 
 export function moveChat(id: string, x: number, y: number) {
   const item = chats.find((c) => c.id === id);
-  if (item) { item.x = x; item.y = y; }
+  if (item) {
+    item.x = x;
+    item.y = y;
+  }
 }
 
 export function createChat() {
