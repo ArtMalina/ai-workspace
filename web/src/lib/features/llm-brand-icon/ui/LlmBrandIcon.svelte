@@ -5,9 +5,10 @@
 
   interface Props {
     brand: LlmBrandTypes;
+    className?: string;
   }
 
-  let { brand }: Props = $props();
+  const { brand, className }: Props = $props();
 
   const components: Record<LlmBrandTypes, Component> = {
     openai: IconOpenAI,
@@ -17,7 +18,7 @@
     claude: IconClaude,
   };
 
-  const IconComponent = $derived(components[brand] || IconOpenAI);
+  const IconComponent = components[brand] || IconOpenAI;
 </script>
 
-<IconComponent />
+<IconComponent class={className} />

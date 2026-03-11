@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { CardFolder, CardChat } from "$lib/widgets";
+  import { CardFolderAlt, CardChat } from "$lib/widgets";
   import { CreateFolder } from "$lib/features/folder";
   import { CreateChat } from "$lib/features/chat";
   import type { LlmBrandTypes } from "$lib/entities/llm";
@@ -7,8 +7,10 @@
   interface FolderItem {
     id: string;
     title: string;
-    llmBrand?: LlmBrandTypes;
-    description: string;
+    llmBrands: LlmBrandTypes[];
+    filesCount: number;
+    collectionsCount: number;
+    chatsCount: number;
     x: number;
     y: number;
   }
@@ -26,26 +28,32 @@
     {
       id: crypto.randomUUID(),
       title: "Ideas",
-      description: "2 chats",
-      llmBrand: "openai",
+      llmBrands: ["openai", "claude"],
+      filesCount: 2,
+      collectionsCount: 1,
+      chatsCount: 3,
       x: 40,
       y: 48,
     },
     {
       id: crypto.randomUUID(),
       title: "Project Alpha",
-      description: "12 files, 2 collections",
-      llmBrand: "claude",
-      x: 320,
+      llmBrands: ["claude", "openai", "qwen"],
+      filesCount: 12,
+      collectionsCount: 2,
+      chatsCount: 7,
+      x: 380,
       y: 48,
     },
     {
       id: crypto.randomUUID(),
       title: "Finance Reports",
-      description: "4 files, 3 collections",
-      llmBrand: "llama",
-      x: 320,
-      y: 208,
+      llmBrands: ["llama", "mistral"],
+      filesCount: 4,
+      collectionsCount: 3,
+      chatsCount: 2,
+      x: 380,
+      y: 248,
     },
   ]);
 
@@ -55,21 +63,21 @@
       title: "Draft email",
       model: "claude",
       x: 40,
-      y: 208,
+      y: 248,
     },
     {
       id: crypto.randomUUID(),
       title: "Code review",
       model: "openai",
-      x: 600,
+      x: 720,
       y: 48,
     },
     {
       id: crypto.randomUUID(),
       title: "Translate article",
       model: "qwen",
-      x: 600,
-      y: 180,
+      x: 720,
+      y: 200,
     },
   ]);
 
@@ -119,7 +127,10 @@
     folders.push({
       id: crypto.randomUUID(),
       title: "New Folder",
-      description: "",
+      llmBrands: [],
+      filesCount: 0,
+      collectionsCount: 0,
+      chatsCount: 0,
       x: 48 + Math.random() * 300,
       y: 48 + Math.random() * 200,
     });
@@ -151,10 +162,12 @@
       onmousedown={(e) => onMouseDown(e, folder.id, "folder")}
       role="none"
     >
-      <CardFolder
+      <CardFolderAlt
         title={folder.title}
-        description={folder.description}
-        llmBrand={folder.llmBrand}
+        llmBrands={folder.llmBrands}
+        filesCount={folder.filesCount}
+        collectionsCount={folder.collectionsCount}
+        chatsCount={folder.chatsCount}
         onrename={(newTitle) => renameFolder(folder.id, newTitle)}
       />
     </div>

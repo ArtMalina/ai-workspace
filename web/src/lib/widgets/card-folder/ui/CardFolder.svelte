@@ -2,7 +2,7 @@
   import { Folder } from "@lucide/svelte";
   import type { Snippet } from "svelte";
   import type { LlmBrandTypes } from "$lib/entities/llm";
-  import { LlmBrandIcon } from "$lib/features/llm-brand-icon";
+  import { LlmBrandIconWrapper } from "$lib/features/llm-brand-icon";
 
   interface Props {
     title: string;
@@ -79,7 +79,7 @@
     <div class="card-folder__tab"></div>
     <div class="card-folder__body">
       {#if llmBrand}
-        <LlmBrandIcon brand={llmBrand} />
+        <LlmBrandIconWrapper brand={llmBrand} />
       {:else}
         <Folder class="card-folder__icon" />
       {/if}
@@ -91,7 +91,7 @@
     <div class="card-folder__tab"></div>
     <div class="card-folder__body">
       {#if llmBrand}
-        <LlmBrandIcon brand={llmBrand} />
+        <LlmBrandIconWrapper brand={llmBrand} />
       {:else}
         <Folder class="card-folder__icon" />
       {/if}
