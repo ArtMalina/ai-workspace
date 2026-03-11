@@ -2,92 +2,14 @@
   import { CardFolderAlt, CardChat } from "$lib/widgets";
   import { CreateFolder } from "$lib/features/folder";
   import { CreateChat } from "$lib/features/chat";
-  import type { LlmBrandTypes } from "$lib/entities/llm";
   import { goto } from "$app/navigation";
-
-  interface FolderItem {
-    id: string;
-    title: string;
-    llmBrands: LlmBrandTypes[];
-    filesCount: number;
-    collectionsCount: number;
-    chatsCount: number;
-    x: number;
-    y: number;
-  }
-
-  interface ChatItem {
-    id: string;
-    title: string;
-    model?: LlmBrandTypes;
-    subtitle?: string;
-    x: number;
-    y: number;
-  }
-
-  let folders = $state<FolderItem[]>([
-    {
-      id: crypto.randomUUID(),
-      title: "Ideas",
-      llmBrands: ["openai", "claude"],
-      filesCount: 2,
-      collectionsCount: 1,
-      chatsCount: 3,
-      x: 40,
-      y: 48,
-    },
-    {
-      id: crypto.randomUUID(),
-      title: "Project Alpha",
-      llmBrands: ["claude", "openai", "qwen"],
-      filesCount: 12,
-      collectionsCount: 2,
-      chatsCount: 7,
-      x: 380,
-      y: 48,
-    },
-    {
-      id: crypto.randomUUID(),
-      title: "Finance Reports",
-      llmBrands: ["llama", "mistral"],
-      filesCount: 4,
-      collectionsCount: 3,
-      chatsCount: 2,
-      x: 380,
-      y: 248,
-    },
-  ]);
-
-  let chats = $state<ChatItem[]>([
-    {
-      id: crypto.randomUUID(),
-      title: "Draft email",
-      model: "claude",
-      x: 40,
-      y: 248,
-    },
-    {
-      id: crypto.randomUUID(),
-      title: "Code review",
-      model: "openai",
-      x: 720,
-      y: 48,
-    },
-    {
-      id: crypto.randomUUID(),
-      title: "Translate article",
-      model: "qwen",
-      x: 720,
-      y: 200,
-    },
-  ]);
+  import { folders, chats, moveFolder, moveChat, renameFolder, renameChat, createFolder, createChat } from "$lib/entities/workspace";
 
   // ─── Drag ───────────────────────────────────────────────
   type DragType = "folder" | "chat";
 
   let draggingId = $state<string | null>(null);
   let draggingType = $state<DragType | null>(null);
-  // non-reactive — used only during drag calculations
   let dragOffset = { x: 0, y: 0 };
   let didDrag = false;
 
@@ -104,49 +26,16 @@
   function onMouseMove(e: MouseEvent) {
     if (!draggingId || !draggingType) return;
     didDrag = true;
-    const items = draggingType === "folder" ? folders : chats;
-    const idx = items.findIndex((i) => i.id === draggingId);
-    if (idx === -1) return;
-    items[idx].x = e.clientX - dragOffset.x;
-    items[idx].y = e.clientY - dragOffset.y;
+    if (draggingType === "folder") {
+      moveFolder(draggingId, e.clientX - dragOffset.x, e.clientY - dragOffset.y);
+    } else {
+      moveChat(draggingId, e.clientX - dragOffset.x, e.clientY - dragOffset.y);
+    }
   }
 
   function onMouseUp() {
     draggingId = null;
     draggingType = null;
-  }
-
-  // ─── Mutations ──────────────────────────────────────────
-  function renameFolder(id: string, newTitle: string) {
-    const idx = folders.findIndex((f) => f.id === id);
-    if (idx !== -1) folders[idx].title = newTitle;
-  }
-
-  function renameChat(id: string, newTitle: string) {
-    const idx = chats.findIndex((c) => c.id === id);
-    if (idx !== -1) chats[idx].title = newTitle;
-  }
-
-  function createFolder() {
-    folders.push({
-      id: crypto.randomUUID(),
-      title: "New Folder",
-      llmBrands: [],
-      filesCount: 0,
-      collectionsCount: 0,
-      chatsCount: 0,
-      x: 48 + Math.random() * 300,
-      y: 48 + Math.random() * 200,
-    });
-  }
-
-  function createChat() {
-    chats.push({
-      id: crypto.randomUUID(),
-      title: "New Chat",
-      x: 48 + Math.random() * 400,
-      y: 48 + Math.random() * 300,
-    });
   }
 </script>
 
