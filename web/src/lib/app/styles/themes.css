@@ -78,7 +78,7 @@
 :root[data-theme="dark"] {
   /* Surface */
   --surface-page: var(--color-neutral-950);
-  --surface-card: var(--color-neutral-900);
+  --surface-card: var(--color-neutral-800);
   --surface-elevated: var(--color-neutral-800);
   --surface-overlay: var(--color-neutral-700);
 
