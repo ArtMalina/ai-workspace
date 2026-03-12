@@ -39,7 +39,7 @@ export let folders = $state<FolderItem[]>([
     llmBrands: ["claude", "openai", "qwen"],
     filesCount: 12,
     collectionsCount: 2,
-    chatsCount: 7,
+    chatsCount: 12,
     x: 380,
     y: 48,
   },
