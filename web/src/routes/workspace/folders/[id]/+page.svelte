@@ -28,7 +28,7 @@
         <div class="fp__brands">
           {#each folder.llmBrands as brand (brand)}
             <div class="fp__brand-chip">
-              <LlmBrandIcon {brand} size={14} />
+              <LlmBrandIcon {brand} />
               <span>{brandLabels[brand] ?? brand}</span>
             </div>
           {/each}

@@ -49,7 +49,7 @@
     <div class="cp__model-row">
       <div class="cp__model-icon">
         {#if chat.model}
-          <LlmBrandIcon brand={chat.model} size={16} />
+          <LlmBrandIcon brand={chat.model} />
         {:else}
           <MessageSquare class="cp__icon-fallback" />
         {/if}
