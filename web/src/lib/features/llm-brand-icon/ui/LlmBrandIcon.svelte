@@ -1,6 +1,5 @@
 <script lang="ts">
-  import type { Component } from "svelte";
-  import { IconClaude, IconLlama, IconMistral, IconOpenAI, IconQwen } from "$lib/shared/ui";
+  import { LlmIcon } from "$lib/shared/ui";
   import type { LlmBrandTypes } from "$lib/entities/llm";
 
   interface Props {
@@ -9,16 +8,6 @@
   }
 
   const { brand, className }: Props = $props();
-
-  const components: Record<LlmBrandTypes, Component> = {
-    openai: IconOpenAI,
-    llama: IconLlama,
-    mistral: IconMistral,
-    qwen: IconQwen,
-    claude: IconClaude,
-  };
-
-  const IconComponent = components[brand] || IconOpenAI;
 </script>
 
-<IconComponent class={className} />
+<LlmIcon class={className} {brand} />
