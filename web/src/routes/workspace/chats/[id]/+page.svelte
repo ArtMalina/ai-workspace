@@ -1,10 +1,9 @@
 <script lang="ts">
   import { page } from "$app/stores";
   import { MessageSquare } from "@lucide/svelte";
-  import { WorkspacePanel } from "$lib/widgets";
+  import { ChatPanel } from "$lib/widgets";
   import { LlmBrandIcon } from "$lib/features/llm-brand-icon";
   import { chats, renameChat, updateChatSubtitle } from "$lib/entities/workspace";
-  import { MessageInput } from "$lib/features/chat";
 
   const chat = $derived(chats.find((c) => c.id === $page.params.id));
 
@@ -41,15 +40,10 @@
   }
 </script>
 
-<WorkspacePanel
+<ChatPanel
   title={chat?.title ?? "Chat"}
   onrename={chat ? (t) => renameChat(chat.id, t) : undefined}
 >
-  {#snippet footer()}
-    {#if chat}
-      <MessageInput />
-    {/if}
-  {/snippet}
   {#if chat}
     <!-- Model badge -->
     <div class="cp__model-row">
@@ -92,14 +86,14 @@
     </section>
 
     <!-- Messages -->
-    <section class="cp__section">
+    <section class="cp__section cp__section--grow">
       <h3 class="cp__section-heading">Messages</h3>
       <div class="cp__messages-empty">
         <div class="cp__messages-empty-icon-wrap">
           <MessageSquare class="cp__messages-empty-icon" />
         </div>
         <p class="cp__messages-empty-title">No messages yet</p>
-        <p class="cp__messages-empty-hint">Start a conversation to see it here</p>
+        <p class="cp__messages-empty-hint">Start a conversation below</p>
       </div>
     </section>
   {:else}
@@ -107,7 +101,7 @@
       <p>Chat not found</p>
     </div>
   {/if}
-</WorkspacePanel>
+</ChatPanel>
 
 <style>
   /* ── Model row ────────────────────────────────────── */
@@ -157,6 +151,10 @@
     margin-bottom: var(--spacing-8);
   }
 
+  .cp__section--grow {
+    flex: 1;
+  }
+
   .cp__section-heading {
     display: flex;
     align-items: center;
@@ -201,7 +199,6 @@
 
   .cp__subtitle-field:hover {
     border-color: var(--border-strong);
-    background: var(--surface-overlay);
   }
 
   :global([data-theme="dark"]) .cp__subtitle-field {
@@ -211,7 +208,6 @@
 
   :global([data-theme="dark"]) .cp__subtitle-field:hover {
     border-color: var(--color-neutral-500);
-    background: var(--color-neutral-700);
   }
 
   .cp__subtitle-text {
