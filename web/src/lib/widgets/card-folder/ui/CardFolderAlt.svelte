@@ -76,15 +76,15 @@
           onmousedown={(e) => e.stopPropagation()}
         />
       {:else}
-        <span
-          role="button"
-          tabindex="0"
+        <button
+          type="button"
           class="cfa__title"
           ondblclick={startEdit}
+          onclick={(e) => e.stopPropagation()}
           onmousedown={(e) => onrename && e.stopPropagation()}
         >
           {title}
-        </span>
+        </button>
       {/if}
     </div>
 

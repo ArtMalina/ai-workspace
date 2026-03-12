@@ -65,15 +65,15 @@
         onmousedown={(e) => e.stopPropagation()}
       />
     {:else}
-      <span
-        role="button"
-        tabindex="0"
+      <button
+        type="button"
         class="card-chat__title"
         ondblclick={startEdit}
+        onclick={(e) => e.stopPropagation()}
         onmousedown={(e) => onrename && e.stopPropagation()}
       >
         {title}
-      </span>
+      </button>
     {/if}
     {#if displaySubtitle}
       <span class="card-chat__subtitle">{displaySubtitle}</span>

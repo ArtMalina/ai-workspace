@@ -115,7 +115,9 @@
       variant="card"
       onsend={handleQuickSend}
       model={quickModel}
-      onmodelchange={(m) => { quickModel = m; }}
+      onmodelchange={(m) => {
+        quickModel = m;
+      }}
     />
   </div>
 
@@ -135,10 +137,6 @@
 
   .workspace__item {
     position: absolute;
-    cursor: pointer;
-  }
-
-  .workspace__item:active {
     cursor: grab;
   }
 
