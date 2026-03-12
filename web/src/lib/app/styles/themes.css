@@ -29,10 +29,10 @@
   --border-default: var(--color-neutral-300);
   --border-strong: var(--color-neutral-500);
 
-  /* Brand */
-  --brand-default: var(--color-primary-500);
-  --brand-hover: var(--color-primary-600);
-  --brand-active: var(--color-primary-700);
+  /* Brand — primary-600 is min for WCAG AA on white (6.29:1) */
+  --brand-default: var(--color-primary-600);
+  --brand-hover: var(--color-primary-700);
+  --brand-active: var(--color-primary-800);
   --brand-subtle: var(--color-primary-50);
   --brand-text: var(--color-primary-700);
 
@@ -86,7 +86,7 @@
   --text-primary: var(--color-neutral-50);
   --text-secondary: var(--color-neutral-300);
   --text-subtle: var(--color-neutral-400);
-  --text-muted: var(--color-neutral-500);
+  --text-muted: var(--color-neutral-500); /* placeholder/decorative — WCAG 1.4.3 exempt */
   --text-inverted: var(--color-neutral-900);
 
   /* Border */
