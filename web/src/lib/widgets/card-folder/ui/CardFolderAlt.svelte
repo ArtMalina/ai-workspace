@@ -169,11 +169,7 @@
     align-self: flex-start;
     width: 6.5rem;
     height: 1rem;
-    background: linear-gradient(
-      to right,
-      var(--brand-subtle),
-      color-mix(in srgb, var(--brand-subtle) 20%, transparent)
-    );
+    background: var(--brand-subtle);
     border: 1.5px solid var(--border-default);
     border-bottom: none;
     border-radius: var(--radius-md) var(--radius-md) 0 0;

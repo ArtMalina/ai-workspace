@@ -12,22 +12,22 @@
 
 :root {
   /* Surface */
-  --surface-page: var(--color-neutral-50);
+  --surface-page: var(--color-neutral-100);
   --surface-card: #ffffff;
   --surface-elevated: var(--color-neutral-100);
   --surface-overlay: var(--color-neutral-200);
 
   /* Text */
   --text-primary: var(--color-neutral-900);
-  --text-secondary: var(--color-neutral-600);
-  --text-subtle: var(--color-neutral-500);
-  --text-muted: var(--color-neutral-400);
+  --text-secondary: var(--color-neutral-700);
+  --text-subtle: var(--color-neutral-600);
+  --text-muted: var(--color-neutral-500);
   --text-inverted: var(--color-neutral-50);
 
   /* Border */
   --border-subtle: var(--color-neutral-200);
   --border-default: var(--color-neutral-300);
-  --border-strong: var(--color-neutral-400);
+  --border-strong: var(--color-neutral-500);
 
   /* Brand */
   --brand-default: var(--color-primary-500);
@@ -84,15 +84,15 @@
 
   /* Text */
   --text-primary: var(--color-neutral-50);
-  --text-secondary: var(--color-neutral-400);
-  --text-subtle: var(--color-neutral-500);
-  --text-muted: var(--color-neutral-600);
+  --text-secondary: var(--color-neutral-300);
+  --text-subtle: var(--color-neutral-400);
+  --text-muted: var(--color-neutral-500);
   --text-inverted: var(--color-neutral-900);
 
   /* Border */
-  --border-subtle: var(--color-neutral-800);
-  --border-default: var(--color-neutral-700);
-  --border-strong: var(--color-neutral-600);
+  --border-subtle: var(--color-neutral-700);
+  --border-default: var(--color-neutral-600);
+  --border-strong: var(--color-neutral-500);
 
   /* Brand */
   --brand-default: var(--color-primary-400);
@@ -169,3 +169,4 @@
   --color-line-subtle: var(--border-subtle);
   --color-line-strong: var(--border-strong);
 }
+
