@@ -14,6 +14,8 @@
     chatsCount?: number;
     href?: string;
     onrename?: (title: string) => void;
+    /** Highlighted when a chat card is dragged over this folder */
+    isDropTarget?: boolean;
   }
 
   let {
@@ -24,6 +26,7 @@
     chatsCount,
     href,
     onrename,
+    isDropTarget = false,
   }: Props = $props();
 
   const visibleBrands = $derived(llmBrands.slice(0, MAX_VISIBLE_BRANDS));
@@ -138,14 +141,19 @@
 {/snippet}
 
 {#if href}
-  <a class="cfa" {href}>
+  <a class="cfa" class:cfa--drop-target={isDropTarget} {href}>
     <div class="cfa__tab"></div>
     {@render body()}
   </a>
 {:else}
-  <div class="cfa">
+  <div class="cfa" class:cfa--drop-target={isDropTarget}>
     <div class="cfa__tab"></div>
     {@render body()}
+    {#if isDropTarget}
+      <div class="cfa__drop-overlay" aria-hidden="true">
+        <span class="cfa__drop-label">Drop to add</span>
+      </div>
+    {/if}
   </div>
 {/if}
 
@@ -158,6 +166,7 @@
     text-decoration: none;
     color: inherit;
     cursor: default;
+    position: relative;
   }
 
   a.cfa {
@@ -315,6 +324,49 @@
     width: 0.75rem;
     height: 0.75rem;
     flex-shrink: 0;
+  }
+
+  /* ─── Drop target ────────────────────────────────────────── */
+  .cfa--drop-target .cfa__tab {
+    background: color-mix(in srgb, var(--brand-default) 15%, transparent);
+    border-color: var(--brand-default);
+    animation: cfa-pulse 0.9s ease-in-out infinite alternate;
+  }
+
+  .cfa--drop-target .cfa__body {
+    border-color: var(--brand-default);
+    background: color-mix(in srgb, var(--brand-default) 8%, var(--surface-card));
+    box-shadow:
+      0 0 0 3px color-mix(in srgb, var(--brand-default) 20%, transparent),
+      var(--shadow-md);
+  }
+
+  /* Overlay shown on top of body when dragging over */
+  .cfa__drop-overlay {
+    position: absolute;
+    inset: 1rem 0 0 0; /* below the tab */
+    border-radius: 0 var(--radius-md) var(--radius-md) var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+
+  .cfa__drop-label {
+    font-size: var(--text-xs);
+    font-weight: var(--font-weight-semibold);
+    color: var(--brand-default);
+    background: color-mix(in srgb, var(--brand-default) 12%, var(--surface-card));
+    padding: 0.2rem 0.65rem;
+    border-radius: var(--radius-full);
+    border: 1px solid color-mix(in srgb, var(--brand-default) 35%, transparent);
+    letter-spacing: 0.01em;
+    backdrop-filter: blur(4px);
+  }
+
+  @keyframes cfa-pulse {
+    from { opacity: 0.7; }
+    to   { opacity: 1; }
   }
 
   /* ─── Hover (link only) ──────────────────────────────────── */

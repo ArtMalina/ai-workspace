@@ -14,6 +14,7 @@
     createFolder,
     createChat,
     createChatWithMessage,
+    moveChatToFolder,
   } from "$lib/entities/workspace";
 
   let quickModel = $state<LlmBrandTypes | undefined>(undefined);
@@ -23,19 +24,33 @@
     goto(`/workspace/chats/${id}`);
   }
 
-  // ─── Drag ───────────────────────────────────────────────
+  // ─── Drag & Drop ────────────────────────────────────────
   type DragType = "folder" | "chat";
 
   let draggingId = $state<string | null>(null);
   let draggingType = $state<DragType | null>(null);
+  let dropTargetId = $state<string | null>(null);
   let dragOffset = { x: 0, y: 0 };
   let didDrag = false;
+
+  /** Returns the folder id whose card contains the given viewport point */
+  function folderAtPoint(x: number, y: number): string | null {
+    const els = document.querySelectorAll<HTMLElement>("[data-folder-id]");
+    for (const el of els) {
+      const r = el.getBoundingClientRect();
+      if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) {
+        return el.dataset.folderId!;
+      }
+    }
+    return null;
+  }
 
   function onMouseDown(e: MouseEvent, id: string, type: DragType) {
     e.preventDefault();
     didDrag = false;
     draggingId = id;
     draggingType = type;
+    dropTargetId = null;
     const items = type === "folder" ? folders : chats;
     const item = items.find((i) => i.id === id)!;
     dragOffset = { x: e.clientX - item.x, y: e.clientY - item.y };
@@ -46,14 +61,21 @@
     didDrag = true;
     if (draggingType === "folder") {
       moveFolder(draggingId, e.clientX - dragOffset.x, e.clientY - dragOffset.y);
+      dropTargetId = null;
     } else {
       moveChat(draggingId, e.clientX - dragOffset.x, e.clientY - dragOffset.y);
+      // Detect folder drop target (exclude cases where chat hovers over nothing)
+      dropTargetId = folderAtPoint(e.clientX, e.clientY);
     }
   }
 
   function onMouseUp() {
+    if (draggingType === "chat" && draggingId && dropTargetId) {
+      moveChatToFolder(draggingId, dropTargetId);
+    }
     draggingId = null;
     draggingType = null;
+    dropTargetId = null;
   }
 </script>
 
@@ -68,6 +90,8 @@
     <div
       class="workspace__item"
       class:workspace__item--dragging={draggingId === folder.id}
+      class:workspace__item--drop-target={dropTargetId === folder.id}
+      data-folder-id={folder.id}
       style:left="{folder.x}px"
       style:top="{folder.y}px"
       onmousedown={(e) => onMouseDown(e, folder.id, "folder")}
@@ -82,6 +106,7 @@
         filesCount={folder.filesCount}
         collectionsCount={folder.collectionsCount}
         chatsCount={folder.chatsCount}
+        isDropTarget={dropTargetId === folder.id}
         onrename={(newTitle) => renameFolder(folder.id, newTitle)}
       />
     </div>

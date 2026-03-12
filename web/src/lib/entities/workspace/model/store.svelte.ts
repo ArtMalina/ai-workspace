@@ -143,6 +143,14 @@ export function createChat() {
   });
 }
 
+export function moveChatToFolder(chatId: string, folderId: string) {
+  const idx = chats.findIndex((c) => c.id === chatId);
+  if (idx === -1) return;
+  chats.splice(idx, 1);
+  const folder = folders.find((f) => f.id === folderId);
+  if (folder) folder.chatsCount += 1;
+}
+
 export function createChatWithMessage(subtitle: string, model?: LlmBrandTypes): string {
   const id = crypto.randomUUID();
   chats.push({
