@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { LlmBrandTypes } from "$lib/entities/llm";
   import { CardFolderAlt, CardChat } from "$lib/widgets";
   import { CreateFolder } from "$lib/features/folder";
   import { CreateChat, MessageInput } from "$lib/features/chat";
@@ -15,8 +16,10 @@
     createChatWithMessage,
   } from "$lib/entities/workspace";
 
+  let quickModel = $state<LlmBrandTypes | undefined>(undefined);
+
   function handleQuickSend(message: string) {
-    const id = createChatWithMessage(message);
+    const id = createChatWithMessage(message, quickModel);
     goto(`/workspace/chats/${id}`);
   }
 
@@ -108,7 +111,12 @@
   <!-- Quick-start floating card -->
   <div class="workspace__quick">
     <p class="workspace__quick-label">Start a new chat</p>
-    <MessageInput variant="card" onsend={handleQuickSend} />
+    <MessageInput
+      variant="card"
+      onsend={handleQuickSend}
+      model={quickModel}
+      onmodelchange={(m) => { quickModel = m; }}
+    />
   </div>
 
   <div class="workspace__actions">
@@ -143,10 +151,10 @@
   /* ── Quick-start card ──────────────────────────────── */
   .workspace__quick {
     position: absolute;
-    bottom: var(--spacing-16);
+    bottom: var(--spacing-8);
     left: 50%;
     transform: translateX(-50%);
-    width: min(38rem, calc(100% - var(--spacing-8)));
+    width: min(48rem, calc(100% - var(--spacing-16)));
     background: #ffffff;
     border: 1px solid var(--color-neutral-200);
     border-radius: var(--radius-xl);

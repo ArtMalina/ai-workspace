@@ -1,20 +1,36 @@
 <script lang="ts">
   import type { Snippet } from "svelte";
-  import { Pencil } from "@lucide/svelte";
+  import type { LlmBrandTypes } from "$lib/entities/llm";
+  import { Pencil, MessageSquare } from "@lucide/svelte";
   import { CloseButton } from "$lib/shared/ui";
   import { MessageInput } from "$lib/features/chat";
+  import { LlmBrandIcon } from "$lib/features/llm-brand-icon";
   import { goto } from "$app/navigation";
   import { fly } from "svelte/transition";
 
   interface Props {
     title: string;
+    model?: LlmBrandTypes;
+    subtitle?: string;
     children?: Snippet;
     onrename?: (newTitle: string) => void;
+    onsubtitle?: (newSubtitle: string) => void;
+    onmodelchange?: (model: LlmBrandTypes) => void;
     onclose?: () => void;
     onsend?: (message: string) => void;
   }
 
-  let { title, children, onrename, onclose, onsend }: Props = $props();
+  let {
+    title,
+    model,
+    subtitle,
+    children,
+    onrename,
+    onsubtitle,
+    onmodelchange,
+    onclose,
+    onsend,
+  }: Props = $props();
 
   // ─── Close ───────────────────────────────────────────────
   function close() {
@@ -22,87 +38,163 @@
   }
 
   // ─── Title editing ───────────────────────────────────────
-  let editing = $state(false);
-  let draft = $state("");
-  let inputEl = $state<HTMLInputElement | null>(null);
+  let editingTitle = $state(false);
+  let titleDraft = $state("");
+  let titleInputEl = $state<HTMLInputElement | null>(null);
 
-  function startEdit() {
-    draft = title;
-    editing = true;
+  function startTitleEdit() {
+    titleDraft = title;
+    editingTitle = true;
   }
 
   $effect(() => {
-    if (editing && inputEl) {
-      inputEl.focus();
-      inputEl.select();
+    if (editingTitle && titleInputEl) {
+      titleInputEl.focus();
+      titleInputEl.select();
     }
   });
 
-  function commit() {
-    const trimmed = draft.trim();
-    if (trimmed) onrename?.(trimmed);
-    editing = false;
+  function commitTitle() {
+    const t = titleDraft.trim();
+    if (t) onrename?.(t);
+    editingTitle = false;
   }
 
-  function onKeyDown(e: KeyboardEvent) {
-    if (e.key === "Enter") commit();
-    if (e.key === "Escape") editing = false;
+  function onTitleKeyDown(e: KeyboardEvent) {
+    if (e.key === "Enter") commitTitle();
+    if (e.key === "Escape") editingTitle = false;
+  }
+
+  // ─── Subtitle editing ─────────────────────────────────────
+  let editingSubtitle = $state(false);
+  let subtitleDraft = $state("");
+  let subtitleInputEl = $state<HTMLInputElement | null>(null);
+
+  function startSubtitleEdit() {
+    if (!onsubtitle) return;
+    subtitleDraft = subtitle ?? "";
+    editingSubtitle = true;
+  }
+
+  $effect(() => {
+    if (editingSubtitle && subtitleInputEl) {
+      subtitleInputEl.focus();
+    }
+  });
+
+  function commitSubtitle() {
+    onsubtitle?.(subtitleDraft.trim());
+    editingSubtitle = false;
+  }
+
+  function onSubtitleKeyDown(e: KeyboardEvent) {
+    if (e.key === "Enter") commitSubtitle();
+    if (e.key === "Escape") editingSubtitle = false;
   }
 </script>
 
 <div class="cp" transition:fly={{ y: 20, duration: 220 }}>
-  <!-- Header -->
+
+  <!-- ══ Header ══ -->
   <div class="cp__header">
-    <div class="cp__header-left">
-      {#if onrename}
-        {#if editing}
-          <input
-            bind:this={inputEl}
-            bind:value={draft}
-            class="cp__title-input"
-            onblur={commit}
-            onkeydown={onKeyDown}
-          />
-        {:else}
-          <button class="cp__title-btn" onclick={startEdit} aria-label="Rename">
-            <span class="cp__title">{title}</span>
-            <Pencil class="cp__title-pencil" />
-          </button>
-        {/if}
+
+    <!-- LLM icon -->
+    <div class="cp__llm-icon" class:cp__llm-icon--fallback={!model}>
+      {#if model}
+        <LlmBrandIcon brand={model} />
       {:else}
-        <span class="cp__title">{title}</span>
+        <MessageSquare class="cp__llm-fallback-svg" />
       {/if}
     </div>
 
-    <CloseButton onclick={close} />
+    <!-- Title + subtitle column -->
+    <div class="cp__header-meta">
+
+      <!-- Title -->
+      <div class="cp__title-row">
+        {#if onrename}
+          {#if editingTitle}
+            <input
+              bind:this={titleInputEl}
+              bind:value={titleDraft}
+              class="cp__title-input"
+              onblur={commitTitle}
+              onkeydown={onTitleKeyDown}
+            />
+          {:else}
+            <button
+              class="cp__title-btn"
+              onclick={startTitleEdit}
+              aria-label="Rename"
+            >
+              <span class="cp__title">{title}</span>
+              <Pencil class="cp__title-pencil" />
+            </button>
+          {/if}
+        {:else}
+          <span class="cp__title">{title}</span>
+        {/if}
+      </div>
+
+      <!-- Subtitle -->
+      {#if onsubtitle || subtitle}
+        <div class="cp__subtitle-row">
+          {#if editingSubtitle}
+            <input
+              bind:this={subtitleInputEl}
+              bind:value={subtitleDraft}
+              class="cp__subtitle-input"
+              placeholder="Add description…"
+              onblur={commitSubtitle}
+              onkeydown={onSubtitleKeyDown}
+            />
+          {:else}
+            <button
+              class="cp__subtitle-btn"
+              onclick={startSubtitleEdit}
+              disabled={!onsubtitle}
+            >
+              {#if subtitle}
+                <span class="cp__subtitle-text">{subtitle}</span>
+              {:else}
+                <span class="cp__subtitle-placeholder">Add description…</span>
+              {/if}
+            </button>
+          {/if}
+        </div>
+      {/if}
+    </div>
+
+    <!-- Close only -->
+    <div class="cp__header-right">
+      <CloseButton onclick={close} />
+    </div>
   </div>
 
-  <!-- Messages / body -->
+  <!-- ══ Messages body ══ -->
   <div class="cp__body">
     {@render children?.()}
   </div>
 
-  <!-- Input — pinned to bottom, overlays workspace quick-input -->
-  <MessageInput {onsend} />
+  <!-- ══ Input (with model picker) ══ -->
+  <MessageInput {onsend} {model} onmodelchange={onmodelchange} />
+
 </div>
 
 <style>
   /* ══ Shell ════════════════════════════════════════════════ */
 
   .cp {
-    position: absolute;
-    /* horizontal: half-screen, centered */
+    position: fixed;
     left: 50%;
     transform: translateX(-50%);
-    width: clamp(28rem, 50%, 64rem);
-    /* vertical: top-inset to same bottom as workspace__quick */
-    top: 0.5rem;
-    bottom: var(--spacing-12, 3rem);
-    /* layout */
+    width: clamp(34rem, 68%, 86rem);
+    top: 1rem;
+    bottom: 1rem;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    z-index: 20;
+    z-index: 100;
     /* light */
     background: #ffffff;
     border: 1px solid var(--color-neutral-200);
@@ -110,8 +202,8 @@
     box-shadow:
       0 0 0 1px rgb(0 0 0 / 0.02),
       0 4px 8px -2px rgb(0 0 0 / 0.06),
-      0 16px 32px -8px rgb(0 0 0 / 0.12),
-      0 32px 56px -12px rgb(0 0 0 / 0.1);
+      0 16px 32px -8px rgb(0 0 0 / 0.14),
+      0 40px 72px -16px rgb(0 0 0 / 0.12);
   }
 
   :global([data-theme="dark"]) .cp {
@@ -120,8 +212,8 @@
     box-shadow:
       0 0 0 1px rgb(255 255 255 / 0.04),
       0 4px 8px -2px rgb(0 0 0 / 0.4),
-      0 16px 32px -8px rgb(0 0 0 / 0.5),
-      0 32px 56px -12px rgb(0 0 0 / 0.6);
+      0 16px 32px -8px rgb(0 0 0 / 0.55),
+      0 40px 72px -16px rgb(0 0 0 / 0.65);
   }
 
   /* ══ Header ═══════════════════════════════════════════════ */
@@ -129,9 +221,9 @@
   .cp__header {
     display: flex;
     align-items: center;
-    gap: var(--spacing-2);
-    padding: 0 var(--spacing-3) 0 var(--spacing-4);
-    height: 3.25rem;
+    gap: var(--spacing-3);
+    padding: var(--spacing-3) var(--spacing-3) var(--spacing-3) var(--spacing-4);
+    min-height: 4rem;
     flex-shrink: 0;
     background: var(--color-neutral-50);
     border-bottom: 1px solid var(--color-neutral-200);
@@ -143,14 +235,54 @@
     border-bottom-color: var(--color-neutral-700);
   }
 
-  .cp__header-left {
+  /* ── LLM icon ──────────────────────────────────────────── */
+
+  .cp__llm-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 2rem;
+    height: 2rem;
+    border-radius: var(--radius-md);
+    background: var(--color-neutral-100);
+    border: 1px solid var(--color-neutral-200);
+  }
+
+  :global([data-theme="dark"]) .cp__llm-icon {
+    background: var(--color-neutral-800);
+    border-color: var(--color-neutral-700);
+  }
+
+  :global(.cp__llm-icon svg) {
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+
+  :global(.cp__llm-fallback-svg) {
+    width: 1rem;
+    height: 1rem;
+    color: var(--text-subtle);
+  }
+
+  /* ── Header meta (title + subtitle) ───────────────────── */
+
+  .cp__header-meta {
     flex: 1;
     min-width: 0;
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.125rem;
   }
 
-  /* ── Title static ──────────────────────────────────────── */
+  /* ── Title row ─────────────────────────────────────────── */
+
+  .cp__title-row {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+  }
 
   .cp__title {
     font-size: var(--text-base);
@@ -162,8 +294,6 @@
     line-height: 1.25;
   }
 
-  /* ── Title button (editable) ───────────────────────────── */
-
   .cp__title-btn {
     display: flex;
     align-items: center;
@@ -172,40 +302,27 @@
     min-width: 0;
     background: transparent;
     border: none;
-    border-radius: var(--radius-md);
-    padding: var(--spacing-1) var(--spacing-2);
-    margin-left: calc(-1 * var(--spacing-2));
+    border-radius: var(--radius-sm);
+    padding: 0.125rem var(--spacing-1);
+    margin-left: calc(-1 * var(--spacing-1));
     cursor: text;
     text-align: left;
     transition: background var(--duration-fast) var(--ease-default);
   }
 
-  .cp__title-btn:hover {
-    background: var(--color-neutral-100);
-  }
-
-  :global([data-theme="dark"]) .cp__title-btn:hover {
-    background: var(--color-neutral-800);
-  }
-
-  .cp__title-btn .cp__title {
-    flex: 1;
-  }
+  .cp__title-btn:hover { background: var(--color-neutral-100); }
+  :global([data-theme="dark"]) .cp__title-btn:hover { background: var(--color-neutral-800); }
 
   :global(.cp__title-pencil) {
-    width: 0.8125rem;
-    height: 0.8125rem;
+    width: 0.75rem;
+    height: 0.75rem;
     color: var(--text-subtle);
     flex-shrink: 0;
     opacity: 0;
     transition: opacity var(--duration-fast) var(--ease-default);
   }
 
-  .cp__title-btn:hover :global(.cp__title-pencil) {
-    opacity: 1;
-  }
-
-  /* ── Title input ───────────────────────────────────────── */
+  .cp__title-btn:hover :global(.cp__title-pencil) { opacity: 1; }
 
   .cp__title-input {
     flex: 1;
@@ -216,13 +333,11 @@
     color: var(--text-primary);
     background: #ffffff;
     border: 1.5px solid var(--brand-default);
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-sm);
     outline: none;
-    padding: var(--spacing-1) var(--spacing-2);
+    padding: 0.125rem var(--spacing-1);
     caret-color: var(--brand-default);
-    box-shadow:
-      0 0 0 3px color-mix(in srgb, var(--brand-default) 12%, transparent),
-      0 1px 3px rgb(0 0 0 / 0.06);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-default) 12%, transparent);
   }
 
   :global([data-theme="dark"]) .cp__title-input {
@@ -231,13 +346,91 @@
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-default) 22%, transparent);
   }
 
+  /* ── Subtitle row ──────────────────────────────────────── */
+
+  .cp__subtitle-row {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+  }
+
+  .cp__subtitle-btn {
+    display: inline-flex;
+    align-items: center;
+    max-width: 100%;
+    min-width: 0;
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 0;
+    cursor: text;
+    text-align: left;
+  }
+
+  .cp__subtitle-btn:disabled { cursor: default; pointer-events: none; }
+
+  .cp__subtitle-text {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 40ch;
+  }
+
+  :global([data-theme="dark"]) .cp__subtitle-text { color: var(--color-neutral-500); }
+
+  .cp__subtitle-placeholder {
+    font-size: var(--text-xs);
+    color: var(--text-subtle);
+    line-height: 1.4;
+    opacity: 0;
+    transition: opacity var(--duration-fast) var(--ease-default);
+  }
+
+  .cp__subtitle-btn:hover .cp__subtitle-placeholder { opacity: 1; }
+  :global([data-theme="dark"]) .cp__subtitle-placeholder { color: var(--color-neutral-600); }
+
+  .cp__subtitle-input {
+    flex: 1;
+    min-width: 0;
+    width: 28ch;
+    font-size: var(--text-xs);
+    color: var(--text-primary);
+    font-family: inherit;
+    background: #ffffff;
+    border: 1px solid var(--brand-default);
+    border-radius: var(--radius-sm);
+    outline: none;
+    padding: 0.125rem var(--spacing-1);
+    caret-color: var(--brand-default);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--brand-default) 12%, transparent);
+  }
+
+  :global([data-theme="dark"]) .cp__subtitle-input {
+    background: var(--color-neutral-800);
+    color: var(--color-neutral-100);
+  }
+
+  /* ── Header right ──────────────────────────────────────── */
+
+  .cp__header-right {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    flex-shrink: 0;
+  }
+
   /* ══ Body ═════════════════════════════════════════════════ */
 
   .cp__body {
     flex: 1;
     overflow-y: auto;
-    padding: var(--spacing-6);
+    padding: var(--spacing-6) var(--spacing-6) var(--spacing-4);
     background: #ffffff;
+    display: flex;
+    flex-direction: column;
   }
 
   :global([data-theme="dark"]) .cp__body {

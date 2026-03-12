@@ -121,6 +121,11 @@ export function updateChatSubtitle(id: string, subtitle: string) {
   if (item) item.subtitle = subtitle;
 }
 
+export function updateChatModel(id: string, model: LlmBrandTypes) {
+  const item = chats.find((c) => c.id === id);
+  if (item) item.model = model;
+}
+
 export function moveChat(id: string, x: number, y: number) {
   const item = chats.find((c) => c.id === id);
   if (item) {
@@ -138,12 +143,13 @@ export function createChat() {
   });
 }
 
-export function createChatWithMessage(subtitle: string): string {
+export function createChatWithMessage(subtitle: string, model?: LlmBrandTypes): string {
   const id = crypto.randomUUID();
   chats.push({
     id,
     title: "New Chat",
     subtitle,
+    model,
     x: 48 + Math.random() * 400,
     y: 48 + Math.random() * 300,
   });
