@@ -7,3 +7,4 @@ export * from "./card-chat";
 export * from "./workspace-panel";
 export * from "./chat-panel";
 export * from "./folder-sidebar";
+export * from "./message-thread";
