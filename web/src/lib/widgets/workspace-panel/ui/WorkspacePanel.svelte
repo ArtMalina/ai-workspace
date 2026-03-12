@@ -8,11 +8,12 @@
   interface Props {
     title: string;
     children?: Snippet;
+    footer?: Snippet;
     onrename?: (newTitle: string) => void;
     onclose?: () => void;
   }
 
-  let { title, children, onrename, onclose }: Props = $props();
+  let { title, children, footer, onrename, onclose }: Props = $props();
 
   // ─── Close ───────────────────────────────────────────────
   function close() {
@@ -77,6 +78,10 @@
   <div class="wp__body">
     {@render children?.()}
   </div>
+
+  {#if footer}
+    {@render footer()}
+  {/if}
 </div>
 
 <style>

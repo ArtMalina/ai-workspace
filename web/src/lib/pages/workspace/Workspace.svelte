@@ -1,7 +1,7 @@
 <script lang="ts">
   import { CardFolderAlt, CardChat } from "$lib/widgets";
   import { CreateFolder } from "$lib/features/folder";
-  import { CreateChat } from "$lib/features/chat";
+  import { CreateChat, MessageInput } from "$lib/features/chat";
   import { goto } from "$app/navigation";
   import {
     folders,
@@ -12,7 +12,13 @@
     renameChat,
     createFolder,
     createChat,
+    createChatWithMessage,
   } from "$lib/entities/workspace";
+
+  function handleQuickSend(message: string) {
+    const id = createChatWithMessage(message);
+    goto(`/workspace/chats/${id}`);
+  }
 
   // ─── Drag ───────────────────────────────────────────────
   type DragType = "folder" | "chat";
@@ -99,6 +105,12 @@
     </div>
   {/each}
 
+  <!-- Quick-start floating card -->
+  <div class="workspace__quick">
+    <p class="workspace__quick-label">Start a new chat</p>
+    <MessageInput variant="card" onsend={handleQuickSend} />
+  </div>
+
   <div class="workspace__actions">
     <CreateChat onCreate={createChat} />
     <CreateFolder onCreate={createFolder} />
@@ -126,6 +138,47 @@
     cursor: grabbing;
     z-index: 10;
     opacity: 0.85;
+  }
+
+  /* ── Quick-start card ──────────────────────────────── */
+  .workspace__quick {
+    position: absolute;
+    bottom: var(--spacing-16);
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(38rem, calc(100% - var(--spacing-8)));
+    background: #ffffff;
+    border: 1px solid var(--color-neutral-200);
+    border-radius: var(--radius-xl);
+    box-shadow:
+      0 0 0 1px rgb(0 0 0 / 0.02),
+      0 4px 8px -2px rgb(0 0 0 / 0.06),
+      0 12px 28px -6px rgb(0 0 0 / 0.1),
+      0 24px 48px -10px rgb(0 0 0 / 0.08);
+    padding: var(--spacing-3) var(--spacing-4) var(--spacing-4);
+    user-select: none;
+    pointer-events: all;
+  }
+
+  :global([data-theme="dark"]) .workspace__quick {
+    background: var(--color-neutral-800);
+    border-color: var(--color-neutral-700);
+    box-shadow:
+      0 0 0 1px rgb(255 255 255 / 0.04),
+      0 4px 8px -2px rgb(0 0 0 / 0.4),
+      0 16px 32px -8px rgb(0 0 0 / 0.5);
+  }
+
+  .workspace__quick-label {
+    margin: 0 0 var(--spacing-2) var(--spacing-1);
+    font-size: var(--text-xs);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-muted);
+    user-select: none;
+  }
+
+  :global([data-theme="dark"]) .workspace__quick-label {
+    color: var(--color-neutral-500);
   }
 
   .workspace__actions {

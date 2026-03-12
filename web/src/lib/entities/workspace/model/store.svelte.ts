@@ -137,3 +137,15 @@ export function createChat() {
     y: 48 + Math.random() * 300,
   });
 }
+
+export function createChatWithMessage(subtitle: string): string {
+  const id = crypto.randomUUID();
+  chats.push({
+    id,
+    title: "New Chat",
+    subtitle,
+    x: 48 + Math.random() * 400,
+    y: 48 + Math.random() * 300,
+  });
+  return id;
+}

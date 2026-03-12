@@ -4,6 +4,7 @@
   import { WorkspacePanel } from "$lib/widgets";
   import { LlmBrandIcon } from "$lib/features/llm-brand-icon";
   import { chats, renameChat, updateChatSubtitle } from "$lib/entities/workspace";
+  import { MessageInput } from "$lib/features/chat";
 
   const chat = $derived(chats.find((c) => c.id === $page.params.id));
 
@@ -44,6 +45,11 @@
   title={chat?.title ?? "Chat"}
   onrename={chat ? (t) => renameChat(chat.id, t) : undefined}
 >
+  {#snippet footer()}
+    {#if chat}
+      <MessageInput />
+    {/if}
+  {/snippet}
   {#if chat}
     <!-- Model badge -->
     <div class="cp__model-row">
