@@ -1,14 +1,7 @@
 <script lang="ts">
   import type { LlmBrandTypes } from "$lib/entities/llm";
   import { ArrowUp, Plus, Globe, CodeXml, FileText, ChevronDown } from "@lucide/svelte";
-  import {
-    IconClaude,
-    IconLlama,
-    IconMistral,
-    IconOpenAI,
-    IconQwen,
-    ToggleButton,
-  } from "$lib/shared/ui";
+  import { LlmIcon, ToggleButton } from "$lib/shared/ui";
 
   interface Props {
     onsend?: (message: string) => void;
@@ -27,14 +20,6 @@
     { id: "llama", label: "Llama" },
     { id: "mistral", label: "Mistral" },
   ];
-
-  const MODEL_ICONS: Record<LlmBrandTypes, typeof IconOpenAI> = {
-    openai: IconOpenAI,
-    claude: IconClaude,
-    qwen: IconQwen,
-    llama: IconLlama,
-    mistral: IconMistral,
-  };
 
   const currentModel = $derived(MODEL_LIST.find((m) => m.id === model));
 
@@ -151,7 +136,6 @@
           {#if showPicker}
             <div class="mi__picker" role="listbox" aria-label="Select model">
               {#each MODEL_LIST as m (m.id)}
-                {@const Icon = MODEL_ICONS[m.id]}
                 <button
                   class="mi__picker-item"
                   class:mi__picker-item--active={model === m.id}
@@ -163,7 +147,7 @@
                     selectModel(m.id);
                   }}
                 >
-                  <span class="mi__picker-icon"><Icon /></span>
+                  <span class="mi__picker-icon"><LlmIcon brand={m.id} /></span>
                   <span class="mi__picker-label">{m.label}</span>
                   {#if model === m.id}
                     <span class="mi__picker-check">✓</span>
@@ -182,8 +166,7 @@
             onclick={togglePicker}
           >
             {#if currentModel}
-              {@const Icon = MODEL_ICONS[currentModel.id]}
-              <span class="mi__model-chip-icon"><Icon /></span>
+              <span class="mi__model-chip-icon"><LlmIcon brand={currentModel.id} /></span>
               <span class="mi__model-chip-label">{currentModel.label}</span>
             {:else}
               <span class="mi__model-chip-label mi__model-chip-label--empty">Model</span>
