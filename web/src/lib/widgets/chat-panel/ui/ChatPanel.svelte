@@ -13,6 +13,8 @@
     model?: LlmBrandTypes;
     subtitle?: string;
     children?: Snippet;
+    /** Optional side panel rendered to the right of the chat window */
+    sidebar?: Snippet;
     onrename?: (newTitle: string) => void;
     onsubtitle?: (newSubtitle: string) => void;
     onmodelchange?: (model: LlmBrandTypes) => void;
@@ -25,6 +27,7 @@
     model,
     subtitle,
     children,
+    sidebar,
     onrename,
     onsubtitle,
     onmodelchange,
@@ -65,7 +68,7 @@
     if (e.key === "Escape") editingTitle = false;
   }
 
-  // ─── Subtitle editing ─────────────────────────────────────
+  // ─── Subtitle editing ────────────────────────────────────
   let editingSubtitle = $state(false);
   let subtitleDraft = $state("");
   let subtitleInputEl = $state<HTMLInputElement | null>(null);
@@ -77,9 +80,7 @@
   }
 
   $effect(() => {
-    if (editingSubtitle && subtitleInputEl) {
-      subtitleInputEl.focus();
-    }
+    if (editingSubtitle && subtitleInputEl) subtitleInputEl.focus();
   });
 
   function commitSubtitle() {
@@ -93,11 +94,10 @@
   }
 </script>
 
-<div class="cp" transition:fly={{ y: 20, duration: 220 }}>
-
+<!-- ─── Inner panel content (reused in both layouts) ──── -->
+{#snippet panelInner()}
   <!-- ══ Header ══ -->
   <div class="cp__header">
-
     <!-- LLM icon -->
     <div class="cp__llm-icon" class:cp__llm-icon--fallback={!model}>
       {#if model}
@@ -109,8 +109,6 @@
 
     <!-- Title + subtitle column -->
     <div class="cp__header-meta">
-
-      <!-- Title -->
       <div class="cp__title-row">
         {#if onrename}
           {#if editingTitle}
@@ -122,11 +120,7 @@
               onkeydown={onTitleKeyDown}
             />
           {:else}
-            <button
-              class="cp__title-btn"
-              onclick={startTitleEdit}
-              aria-label="Rename"
-            >
+            <button class="cp__title-btn" onclick={startTitleEdit} aria-label="Rename">
               <span class="cp__title">{title}</span>
               <Pencil class="cp__title-pencil" />
             </button>
@@ -136,7 +130,6 @@
         {/if}
       </div>
 
-      <!-- Subtitle -->
       {#if onsubtitle || subtitle}
         <div class="cp__subtitle-row">
           {#if editingSubtitle}
@@ -149,11 +142,7 @@
               onkeydown={onSubtitleKeyDown}
             />
           {:else}
-            <button
-              class="cp__subtitle-btn"
-              onclick={startSubtitleEdit}
-              disabled={!onsubtitle}
-            >
+            <button class="cp__subtitle-btn" onclick={startSubtitleEdit} disabled={!onsubtitle}>
               {#if subtitle}
                 <span class="cp__subtitle-text">{subtitle}</span>
               {:else}
@@ -165,7 +154,6 @@
       {/if}
     </div>
 
-    <!-- Close only -->
     <div class="cp__header-right">
       <CloseButton onclick={close} />
     </div>
@@ -176,26 +164,54 @@
     {@render children?.()}
   </div>
 
-  <!-- ══ Input (with model picker) ══ -->
+  <!-- ══ Input ══ -->
   <MessageInput {onsend} {model} onmodelchange={onmodelchange} />
+{/snippet}
 
-</div>
+<!-- ─── Layout: with sidebar OR standalone ────────────── -->
+{#if sidebar}
+  <div class="cp-frame" transition:fly={{ y: 20, duration: 220 }}>
+    <div class="cp cp--framed">
+      {@render panelInner()}
+    </div>
+    <aside class="cp-aside">
+      {@render sidebar()}
+    </aside>
+  </div>
+{:else}
+  <div class="cp" transition:fly={{ y: 20, duration: 220 }}>
+    {@render panelInner()}
+  </div>
+{/if}
 
 <style>
+  /* ══ Frame (chat + sidebar side by side) ══════════════════ */
+
+  .cp-frame {
+    position: fixed;
+    top: 1rem;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: stretch;
+    gap: 0.75rem;
+    z-index: 100;
+  }
+
   /* ══ Shell ════════════════════════════════════════════════ */
 
   .cp {
     position: fixed;
     left: 50%;
     transform: translateX(-50%);
-    width: clamp(34rem, 68%, 86rem);
+    width: clamp(34rem, 68vw, 86rem);
     top: 1rem;
     bottom: 1rem;
     display: flex;
     flex-direction: column;
     overflow: hidden;
     z-index: 100;
-    /* light */
     background: #ffffff;
     border: 1px solid var(--color-neutral-200);
     border-radius: var(--radius-xl);
@@ -206,7 +222,46 @@
       0 40px 72px -16px rgb(0 0 0 / 0.12);
   }
 
+  /* When inside the frame: position is handled by frame */
+  .cp--framed {
+    position: relative;
+    left: unset;
+    top: unset;
+    bottom: unset;
+    transform: none;
+    width: clamp(30rem, 56vw, 70rem);
+    flex-shrink: 0;
+  }
+
   :global([data-theme="dark"]) .cp {
+    background: var(--color-neutral-800);
+    border-color: var(--color-neutral-700);
+    box-shadow:
+      0 0 0 1px rgb(255 255 255 / 0.04),
+      0 4px 8px -2px rgb(0 0 0 / 0.4),
+      0 16px 32px -8px rgb(0 0 0 / 0.55),
+      0 40px 72px -16px rgb(0 0 0 / 0.65);
+  }
+
+  /* ══ Sidebar ══════════════════════════════════════════════ */
+
+  .cp-aside {
+    width: 22rem;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    border-radius: var(--radius-xl);
+    background: #ffffff;
+    border: 1px solid var(--color-neutral-200);
+    box-shadow:
+      0 0 0 1px rgb(0 0 0 / 0.02),
+      0 4px 8px -2px rgb(0 0 0 / 0.06),
+      0 16px 32px -8px rgb(0 0 0 / 0.14),
+      0 40px 72px -16px rgb(0 0 0 / 0.12);
+  }
+
+  :global([data-theme="dark"]) .cp-aside {
     background: var(--color-neutral-800);
     border-color: var(--color-neutral-700);
     box-shadow:
@@ -235,7 +290,7 @@
     border-bottom-color: var(--color-neutral-700);
   }
 
-  /* ── LLM icon ──────────────────────────────────────────── */
+  /* ── LLM icon ───────────────────────────────────────────── */
 
   .cp__llm-icon {
     display: flex;
@@ -265,7 +320,7 @@
     color: var(--text-subtle);
   }
 
-  /* ── Header meta (title + subtitle) ───────────────────── */
+  /* ── Header meta ────────────────────────────────────────── */
 
   .cp__header-meta {
     flex: 1;
@@ -276,7 +331,7 @@
     gap: 0.125rem;
   }
 
-  /* ── Title row ─────────────────────────────────────────── */
+  /* ── Title ──────────────────────────────────────────────── */
 
   .cp__title-row {
     display: flex;
@@ -346,7 +401,7 @@
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-default) 22%, transparent);
   }
 
-  /* ── Subtitle row ──────────────────────────────────────── */
+  /* ── Subtitle ───────────────────────────────────────────── */
 
   .cp__subtitle-row {
     display: flex;
@@ -413,7 +468,7 @@
     color: var(--color-neutral-100);
   }
 
-  /* ── Header right ──────────────────────────────────────── */
+  /* ── Header right ───────────────────────────────────────── */
 
   .cp__header-right {
     display: flex;
