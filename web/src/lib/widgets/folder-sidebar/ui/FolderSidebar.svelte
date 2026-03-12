@@ -1,5 +1,13 @@
 <script lang="ts">
-  import { FolderOpen, MessageSquare, FileText, Layers, Plus } from "@lucide/svelte";
+  import {
+    FolderOpen,
+    FileText,
+    Layers,
+    Plus,
+    MoreVertical,
+    FolderMinus,
+    Trash2,
+  } from "@lucide/svelte";
   import { LlmIcon } from "$lib/shared/ui";
   import type { FolderItem } from "$lib/entities/workspace";
   import type { LlmBrandTypes } from "$lib/entities/llm";
@@ -37,7 +45,49 @@
       model: MOCK_CHAT_MODELS[i % MOCK_CHAT_MODELS.length],
     })),
   );
+
+  // ── Context menu ────────────────────────────────────────
+  let openMenuId = $state<string | null>(null);
+  let menuX = $state(0);
+  let menuY = $state(0);
+
+  function openMenu(e: MouseEvent, id: string) {
+    e.stopPropagation();
+    if (openMenuId === id) {
+      openMenuId = null;
+      return;
+    }
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    // Align right edge of menu with right edge of button
+    menuX = rect.right;
+    menuY = rect.bottom + 4;
+    openMenuId = id;
+  }
+
+  function closeMenu() {
+    openMenuId = null;
+  }
+
+  function onWindowPointerDown(e: PointerEvent) {
+    if (!openMenuId) return;
+    const target = e.target as HTMLElement;
+    if (!target.closest("[data-chat-menu]")) closeMenu();
+  }
+
+  function removeFromFolder(id: string) {
+    // TODO: wire to store when real data is ready
+    console.log("remove from folder", id);
+    closeMenu();
+  }
+
+  function deleteChat(id: string) {
+    // TODO: wire to store when real data is ready
+    console.log("delete chat", id);
+    closeMenu();
+  }
 </script>
+
+<svelte:window onpointerdown={onWindowPointerDown} />
 
 <div class="fs">
   <!-- ── Header ──────────────────────────────────────────── -->
@@ -94,11 +144,23 @@
     {#if mockChats.length > 0}
       <ul class="fs__chat-list">
         {#each mockChats as chat (chat.id)}
-          <li class="fs__chat-item">
+          <li class="fs__chat-item" class:fs__chat-item--menu-open={openMenuId === chat.id}>
             <div class="fs__chat-model-icon">
               <LlmIcon brand={chat.model} size={13} />
             </div>
             <span class="fs__chat-title">{chat.title}</span>
+
+            <button
+              class="fs__chat-menu-btn"
+              type="button"
+              aria-label="Chat options"
+              aria-haspopup="menu"
+              aria-expanded={openMenuId === chat.id}
+              data-chat-menu
+              onclick={(e) => openMenu(e, chat.id)}
+            >
+              <MoreVertical class="fs__chat-menu-icon" />
+            </button>
           </li>
         {/each}
       </ul>
@@ -107,6 +169,33 @@
     {/if}
   </section>
 </div>
+
+<!-- ── Context menu popover (fixed, avoids overflow clipping) ── -->
+{#if openMenuId}
+  <div class="fs__menu" role="menu" data-chat-menu style:left="{menuX}px" style:top="{menuY}px">
+    <button
+      class="fs__menu-item"
+      role="menuitem"
+      type="button"
+      data-chat-menu
+      onclick={() => removeFromFolder(openMenuId!)}
+    >
+      <FolderMinus class="fs__menu-icon" />
+      <span>Убрать из папки</span>
+    </button>
+    <hr class="fs__menu-divider" />
+    <button
+      class="fs__menu-item fs__menu-item--danger"
+      role="menuitem"
+      type="button"
+      data-chat-menu
+      onclick={() => deleteChat(openMenuId!)}
+    >
+      <Trash2 class="fs__menu-icon" />
+      <span>Удалить</span>
+    </button>
+  </div>
+{/if}
 
 <style>
   /* ── Shell ─────────────────────────────────────────── */
@@ -351,6 +440,7 @@
   }
 
   .fs__chat-item {
+    position: relative;
     display: flex;
     align-items: center;
     gap: var(--spacing-2);
@@ -360,11 +450,13 @@
     transition: background var(--duration-fast) var(--ease-default);
   }
 
-  .fs__chat-item:hover {
+  .fs__chat-item:hover,
+  .fs__chat-item--menu-open {
     background: var(--color-neutral-100);
   }
 
-  :global([data-theme="dark"]) .fs__chat-item:hover {
+  :global([data-theme="dark"]) .fs__chat-item:hover,
+  :global([data-theme="dark"]) .fs__chat-item--menu-open {
     background: var(--color-neutral-700);
   }
 
@@ -398,5 +490,144 @@
 
   :global([data-theme="dark"]) .fs__chat-title {
     color: var(--color-neutral-400);
+  }
+
+  /* ── Context menu trigger ──────────────────────────── */
+  .fs__chat-menu-btn {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.375rem;
+    height: 1.375rem;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    opacity: 0;
+    transition:
+      opacity var(--duration-fast) var(--ease-default),
+      background var(--duration-fast) var(--ease-default),
+      color var(--duration-fast) var(--ease-default);
+  }
+
+  /* Show on row hover or when menu is open */
+  .fs__chat-item:hover .fs__chat-menu-btn,
+  .fs__chat-item--menu-open .fs__chat-menu-btn {
+    opacity: 1;
+  }
+
+  .fs__chat-menu-btn:hover {
+    background: var(--color-neutral-200);
+    color: var(--text-primary);
+  }
+
+  :global([data-theme="dark"]) .fs__chat-menu-btn:hover {
+    background: var(--color-neutral-600);
+    color: var(--color-neutral-200);
+  }
+
+  :global(.fs__chat-menu-icon) {
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+
+  /* ── Popover menu ──────────────────────────────────── */
+  .fs__menu {
+    position: fixed;
+    z-index: 200;
+    transform: translateX(-100%); /* right-align to anchor */
+    min-width: 11rem;
+    padding: var(--spacing-1);
+    background: var(--surface-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    box-shadow:
+      0 4px 6px -1px rgb(0 0 0 / 0.08),
+      0 10px 20px -4px rgb(0 0 0 / 0.12);
+    animation: fs-menu-in var(--duration-fast) var(--ease-default) both;
+  }
+
+  :global([data-theme="dark"]) .fs__menu {
+    background: var(--color-neutral-800);
+    border-color: var(--color-neutral-700);
+    box-shadow:
+      0 4px 8px -2px rgb(0 0 0 / 0.4),
+      0 12px 24px -6px rgb(0 0 0 / 0.5);
+  }
+
+  @keyframes fs-menu-in {
+    from {
+      opacity: 0;
+      transform: translateX(-100%) translateY(-4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(-100%) translateY(0);
+    }
+  }
+
+  .fs__menu-divider {
+    border: none;
+    border-top: 1px solid var(--border-subtle);
+    margin: var(--spacing-1) 0;
+  }
+
+  :global([data-theme="dark"]) .fs__menu-divider {
+    border-top-color: var(--color-neutral-700);
+  }
+
+  .fs__menu-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    width: 100%;
+    padding: var(--spacing-2) var(--spacing-2);
+    border: none;
+    border-radius: var(--radius-md);
+    background: transparent;
+    font-size: var(--text-xs);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-secondary);
+    cursor: pointer;
+    text-align: left;
+    transition:
+      background var(--duration-fast) var(--ease-default),
+      color var(--duration-fast) var(--ease-default);
+  }
+
+  .fs__menu-item:hover {
+    background: var(--color-neutral-100);
+    color: var(--text-primary);
+  }
+
+  :global([data-theme="dark"]) .fs__menu-item:hover {
+    background: var(--color-neutral-700);
+    color: var(--color-neutral-100);
+  }
+
+  .fs__menu-item--danger {
+    color: var(--color-red-600, #dc2626);
+  }
+
+  .fs__menu-item--danger:hover {
+    background: color-mix(in srgb, var(--color-red-600, #dc2626) 10%, transparent);
+    color: var(--color-red-600, #dc2626);
+  }
+
+  :global([data-theme="dark"]) .fs__menu-item--danger {
+    color: var(--color-red-400, #f87171);
+  }
+
+  :global([data-theme="dark"]) .fs__menu-item--danger:hover {
+    background: color-mix(in srgb, var(--color-red-500, #ef4444) 15%, transparent);
+    color: var(--color-red-400, #f87171);
+  }
+
+  :global(.fs__menu-icon) {
+    width: 0.875rem;
+    height: 0.875rem;
+    flex-shrink: 0;
   }
 </style>
