@@ -20,10 +20,11 @@
   title={folder?.title ?? "Folder"}
   model={activeModel}
   onrename={folder ? (t) => renameFolder(folder.id, t) : undefined}
-  onmodelchange={(m) => { activeModel = m; }}
+  onmodelchange={(m) => {
+    activeModel = m;
+  }}
   onsend={() => {}}
 >
-
   <!-- Body: message list (empty state for now) -->
   {#if folder}
     <div class="fp__empty">
@@ -43,7 +44,6 @@
       <FolderSidebar {folder} />
     {/if}
   {/snippet}
-
 </ChatPanel>
 
 <style>
@@ -87,7 +87,9 @@
     color: var(--text-secondary);
   }
 
-  :global([data-theme="dark"]) .fp__empty-title { color: var(--color-neutral-400); }
+  :global([data-theme="dark"]) .fp__empty-title {
+    color: var(--color-neutral-400);
+  }
 
   .fp__empty-hint {
     margin: 0;
@@ -97,7 +99,9 @@
     line-height: 1.5;
   }
 
-  :global([data-theme="dark"]) .fp__empty-hint { color: var(--color-neutral-500); }
+  :global([data-theme="dark"]) .fp__empty-hint {
+    color: var(--color-neutral-500);
+  }
 
   .fp__not-found {
     flex: 1;
