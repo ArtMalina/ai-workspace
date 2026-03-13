@@ -83,12 +83,11 @@
       <div class="fs__header-icon">
         <FolderOpen class="fs__folder-svg" />
       </div>
-      <span class="fs__header-title">{folder.title}</span>
     {/if}
+    <span class="fs__header-title">{folder.title}</span>
 
     <button
       class="fs__collapse-btn"
-      class:fs__collapse-btn--solo={collapsed}
       onclick={() => (collapsed = !collapsed)}
       aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
       title={collapsed ? "Expand" : "Collapse"}
@@ -103,7 +102,7 @@
   </div>
 
   {#if collapsed}
-    <!-- ── Collapsed: icon-only chat list ─────────────────── -->
+    <!-- ── Collapsed: icon + short title list ─────────────── -->
     <ul class="fs__icon-list">
       {#each folder.chats as chat (chat.id)}
         <li
@@ -117,7 +116,10 @@
             onclick={() => onchatselect?.(chat)}
             aria-label={chat.title}
           >
-            <LlmIcon brand={chat.model ?? "openai"} size={15} />
+            <div class="fs__icon-model">
+              <LlmIcon brand={chat.model ?? "openai"} size={13} />
+            </div>
+            <span class="fs__icon-title">{chat.title}</span>
           </button>
         </li>
       {/each}
@@ -242,7 +244,7 @@
   }
 
   .fs--collapsed {
-    width: 3.25rem;
+    width: 10.5rem;
   }
 
   /* ── Header ────────────────────────────────────────── */
@@ -315,11 +317,6 @@
       color var(--duration-fast) var(--ease-default);
   }
 
-  /* In collapsed mode the button is the only header element — center it */
-  .fs__collapse-btn--solo {
-    margin: 0 auto;
-  }
-
   .fs__collapse-btn:hover {
     background: var(--color-neutral-100);
     color: var(--text-primary);
@@ -357,8 +354,7 @@
   }
 
   .fs__icon-item {
-    width: 2.25rem;
-    height: 2.25rem;
+    width: 100%;
     flex-shrink: 0;
     border-radius: var(--radius-md);
     transition: background var(--duration-fast) var(--ease-default);
@@ -386,15 +382,53 @@
 
   .fs__icon-btn {
     width: 100%;
-    height: 100%;
     display: flex;
     align-items: center;
-    justify-content: center;
+    gap: var(--spacing-2);
+    padding: var(--spacing-2) var(--spacing-2);
     border: none;
     border-radius: var(--radius-md);
     background: transparent;
     cursor: pointer;
-    padding: 0;
+    text-align: left;
+    min-width: 0;
+  }
+
+  .fs__icon-model {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: var(--radius-sm);
+    background: var(--color-neutral-100);
+    border: 1px solid var(--color-neutral-200);
+  }
+
+  :global([data-theme="dark"]) .fs__icon-model {
+    background: var(--color-neutral-700);
+    border-color: var(--color-neutral-600);
+  }
+
+  .fs__icon-title {
+    flex: 1;
+    min-width: 0;
+    font-size: var(--text-xs);
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.4;
+  }
+
+  :global([data-theme="dark"]) .fs__icon-title {
+    color: var(--color-neutral-400);
+  }
+
+  .fs__icon-item--active .fs__icon-title {
+    color: var(--brand-default);
+    font-weight: var(--font-weight-medium);
   }
 
   /* ── Sections ──────────────────────────────────────── */
