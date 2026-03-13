@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Snippet } from "svelte";
   import type { LlmBrandTypes } from "$lib/entities/llm";
-  import { Pencil, MessageSquare } from "@lucide/svelte";
+  import { Pencil, MessageSquare, ArrowLeftRight, ArrowRightLeft } from "@lucide/svelte";
   import { CloseButton } from "$lib/shared/ui";
   import { MessageInput } from "$lib/features/chat";
   import { LlmBrandIcon } from "$lib/features/llm-brand-icon";
@@ -34,6 +34,9 @@
     onclose,
     onsend,
   }: Props = $props();
+
+  // ─── Expand ──────────────────────────────────────────────
+  let expanded = $state(false);
 
   // ─── Close ───────────────────────────────────────────────
   function close() {
@@ -155,6 +158,20 @@
     </div>
 
     <div class="cp__header-right">
+      <button
+        class="cp__expand-btn"
+        class:cp__expand-btn--active={expanded}
+        onclick={() => (expanded = !expanded)}
+        aria-label={expanded ? "Collapse panel" : "Expand panel"}
+        title={expanded ? "Collapse" : "Expand"}
+        type="button"
+      >
+        {#if expanded}
+          <ArrowRightLeft class="cp__expand-icon" />
+        {:else}
+          <ArrowLeftRight class="cp__expand-icon" />
+        {/if}
+      </button>
       <CloseButton onclick={close} />
     </div>
   </div>
@@ -170,8 +187,8 @@
 
 <!-- ─── Layout: with sidebar OR standalone ────────────── -->
 {#if sidebar}
-  <div class="cp-frame" transition:fly={{ y: 20, duration: 220 }}>
-    <div class="cp cp--framed">
+  <div class="cp-frame" class:cp-frame--expanded={expanded} transition:fly={{ y: 20, duration: 220 }}>
+    <div class="cp cp--framed" class:cp--expanded={expanded}>
       {@render panelInner()}
     </div>
     <aside class="cp-aside">
@@ -179,7 +196,7 @@
     </aside>
   </div>
 {:else}
-  <div class="cp" transition:fly={{ y: 20, duration: 220 }}>
+  <div class="cp" class:cp--wide={expanded} transition:fly={{ y: 20, duration: 220 }}>
     {@render panelInner()}
   </div>
 {/if}
@@ -197,6 +214,12 @@
     align-items: stretch;
     gap: 0.75rem;
     z-index: 100;
+    /* smooth width transition */
+    transition: width 260ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .cp-frame--expanded {
+    width: calc(100vw - 6rem);
   }
 
   /* ══ Shell ════════════════════════════════════════════════ */
@@ -220,6 +243,11 @@
       0 4px 8px -2px rgb(0 0 0 / 0.06),
       0 16px 32px -8px rgb(0 0 0 / 0.14),
       0 40px 72px -16px rgb(0 0 0 / 0.12);
+    transition: width 260ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .cp--wide {
+    width: calc(100vw - 6rem);
   }
 
   /* When inside the frame: position is handled by frame */
@@ -231,6 +259,14 @@
     transform: none;
     width: clamp(30rem, 56vw, 70rem);
     flex-shrink: 0;
+    transition: width 260ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* In expanded mode the chat panel takes all remaining space */
+  .cp--expanded {
+    flex: 1;
+    min-width: 0;
+    width: auto;
   }
 
   :global([data-theme="dark"]) .cp {
@@ -473,8 +509,56 @@
   .cp__header-right {
     display: flex;
     align-items: center;
-    gap: var(--spacing-2);
+    gap: var(--spacing-1);
     flex-shrink: 0;
+  }
+
+  /* ── Expand button ──────────────────────────────────────── */
+
+  .cp__expand-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border: none;
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--text-subtle);
+    cursor: pointer;
+    transition:
+      background var(--duration-fast) var(--ease-default),
+      color var(--duration-fast) var(--ease-default);
+  }
+
+  .cp__expand-btn:hover {
+    background: var(--color-neutral-100);
+    color: var(--text-primary);
+  }
+
+  .cp__expand-btn--active {
+    background: color-mix(in srgb, var(--brand-default) 10%, transparent);
+    color: var(--brand-default);
+  }
+
+  .cp__expand-btn--active:hover {
+    background: color-mix(in srgb, var(--brand-default) 16%, transparent);
+    color: var(--brand-default);
+  }
+
+  :global([data-theme="dark"]) .cp__expand-btn:hover {
+    background: var(--color-neutral-700);
+    color: var(--color-neutral-200);
+  }
+
+  :global([data-theme="dark"]) .cp__expand-btn--active {
+    background: color-mix(in srgb, var(--brand-default) 18%, transparent);
+    color: var(--brand-default);
+  }
+
+  :global(.cp__expand-icon) {
+    width: 0.875rem;
+    height: 0.875rem;
   }
 
   /* ══ Body ═════════════════════════════════════════════════ */

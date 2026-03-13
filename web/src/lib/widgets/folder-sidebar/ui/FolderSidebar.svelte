@@ -172,7 +172,7 @@
       onclick={() => handleRemove(openMenuId!)}
     >
       <FolderMinus class="fs__menu-icon" />
-      <span>Убрать из папки</span>
+      <span>Move to Desktop</span>
     </button>
     <hr class="fs__menu-divider" />
     <button
@@ -183,7 +183,7 @@
       onclick={() => handleDelete(openMenuId!)}
     >
       <Trash2 class="fs__menu-icon" />
-      <span>Удалить</span>
+      <span>Delete</span>
     </button>
   </div>
 {/if}
