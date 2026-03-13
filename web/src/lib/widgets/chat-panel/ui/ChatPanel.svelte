@@ -1,10 +1,11 @@
 <script lang="ts">
   import type { Snippet } from "svelte";
   import type { LlmBrandTypes } from "$lib/entities/llm";
-  import { Pencil, MessageSquare, ArrowLeftRight, ArrowRightLeft } from "@lucide/svelte";
+  import { Pencil, MessageSquare } from "@lucide/svelte";
   import { CloseButton } from "$lib/shared/ui";
   import { MessageInput } from "$lib/features/chat";
   import { LlmBrandIcon } from "$lib/features/llm-brand-icon";
+  import { PanelExpandButton, expanded } from "$lib/features/panel-expand";
   import { goto } from "$app/navigation";
   import { fly } from "svelte/transition";
 
@@ -34,9 +35,6 @@
     onclose,
     onsend,
   }: Props = $props();
-
-  // ─── Expand ──────────────────────────────────────────────
-  let expanded = $state(false);
 
   // ─── Close ───────────────────────────────────────────────
   function close() {
@@ -158,20 +156,7 @@
     </div>
 
     <div class="cp__header-right">
-      <button
-        class="cp__expand-btn"
-        class:cp__expand-btn--active={expanded}
-        onclick={() => (expanded = !expanded)}
-        aria-label={expanded ? "Collapse panel" : "Expand panel"}
-        title={expanded ? "Collapse" : "Expand"}
-        type="button"
-      >
-        {#if expanded}
-          <ArrowRightLeft class="cp__expand-icon" />
-        {:else}
-          <ArrowLeftRight class="cp__expand-icon" />
-        {/if}
-      </button>
+      <PanelExpandButton />
       <CloseButton onclick={close} />
     </div>
   </div>
@@ -511,54 +496,6 @@
     align-items: center;
     gap: var(--spacing-1);
     flex-shrink: 0;
-  }
-
-  /* ── Expand button ──────────────────────────────────────── */
-
-  .cp__expand-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 1.75rem;
-    height: 1.75rem;
-    border: none;
-    border-radius: var(--radius-md);
-    background: transparent;
-    color: var(--text-subtle);
-    cursor: pointer;
-    transition:
-      background var(--duration-fast) var(--ease-default),
-      color var(--duration-fast) var(--ease-default);
-  }
-
-  .cp__expand-btn:hover {
-    background: var(--color-neutral-100);
-    color: var(--text-primary);
-  }
-
-  .cp__expand-btn--active {
-    background: color-mix(in srgb, var(--brand-default) 10%, transparent);
-    color: var(--brand-default);
-  }
-
-  .cp__expand-btn--active:hover {
-    background: color-mix(in srgb, var(--brand-default) 16%, transparent);
-    color: var(--brand-default);
-  }
-
-  :global([data-theme="dark"]) .cp__expand-btn:hover {
-    background: var(--color-neutral-700);
-    color: var(--color-neutral-200);
-  }
-
-  :global([data-theme="dark"]) .cp__expand-btn--active {
-    background: color-mix(in srgb, var(--brand-default) 18%, transparent);
-    color: var(--brand-default);
-  }
-
-  :global(.cp__expand-icon) {
-    width: 0.875rem;
-    height: 0.875rem;
   }
 
   /* ══ Body ═════════════════════════════════════════════════ */
