@@ -113,7 +113,6 @@
   .mta__row--user {
     background: color-mix(in srgb, var(--brand-default) 7%, transparent);
     box-shadow: inset 3px 0 0 var(--brand-default);
-    padding-left: var(--spacing-2);
   }
   .mta__row--user:hover {
     background: color-mix(in srgb, var(--brand-default) 10%, transparent);
