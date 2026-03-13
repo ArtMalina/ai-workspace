@@ -9,7 +9,6 @@
     chats,
     moveFolder,
     moveChat,
-    renameFolder,
     renameChat,
     createFolder,
     createChat,
@@ -32,6 +31,11 @@
   let dropTargetId = $state<string | null>(null);
   let dragOffset = { x: 0, y: 0 };
   let didDrag = false;
+
+  // ─── Folder title editing ────────────────────────────────
+  // Tracks which folder cards are currently in title-edit mode.
+  // Plain Set is enough — only read synchronously in event handlers.
+  const editingFolderIds = new Set<string>();
 
   /** Returns the folder id whose card contains the given viewport point */
   function folderAtPoint(x: number, y: number): string | null {
@@ -94,20 +98,28 @@
       data-folder-id={folder.id}
       style:left="{folder.x}px"
       style:top="{folder.y}px"
-      onmousedown={(e) => onMouseDown(e, folder.id, "folder")}
+      onmousedown={(e) => {
+        if (editingFolderIds.has(folder.id)) return;
+        onMouseDown(e, folder.id, "folder");
+      }}
       onclick={() => {
-        if (!didDrag) goto(`/workspace/folders/${folder.id}`);
+        if (!didDrag && !editingFolderIds.has(folder.id)) goto(`/workspace/folders/${folder.id}`);
       }}
       role="none"
     >
       <CardFolderAlt
+        folderId={folder.id}
         title={folder.title}
         llmBrands={folder.llmBrands}
         filesCount={folder.filesCount}
         collectionsCount={folder.collectionsCount}
         chatsCount={folder.chats.length}
         isDropTarget={dropTargetId === folder.id}
-        onrename={(newTitle) => renameFolder(folder.id, newTitle)}
+        onEditingChange={(v) => {
+          if (v) editingFolderIds.add(folder.id);
+          else editingFolderIds.delete(folder.id);
+          console.log([...editingFolderIds]);
+        }}
       />
     </div>
   {/each}

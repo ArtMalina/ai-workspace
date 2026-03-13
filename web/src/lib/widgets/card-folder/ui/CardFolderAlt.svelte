@@ -1,11 +1,13 @@
 <script lang="ts">
-  import { FileText, Layers, MessageSquare } from "@lucide/svelte";
+  import { FileText, Layers } from "@lucide/svelte";
   import type { LlmBrandTypes } from "$lib/entities/llm";
   import { LlmBrandIcon } from "$lib/features/llm-brand-icon";
+  import { FolderCardTitle } from "$lib/features/folder";
 
   const MAX_VISIBLE_BRANDS = 3;
 
   interface Props {
+    folderId: string;
     title: string;
     /** Unique models present across chats in this folder */
     llmBrands?: LlmBrandTypes[];
@@ -13,82 +15,34 @@
     collectionsCount?: number;
     chatsCount?: number;
     href?: string;
-    onrename?: (title: string) => void;
     /** Highlighted when a chat card is dragged over this folder */
     isDropTarget?: boolean;
+    onEditingChange?: (editing: boolean) => void;
   }
 
   let {
+    folderId,
     title,
     llmBrands = [],
     filesCount,
     collectionsCount,
     chatsCount,
     href,
-    onrename,
     isDropTarget = false,
+    onEditingChange,
   }: Props = $props();
 
   const visibleBrands = $derived(llmBrands.slice(0, MAX_VISIBLE_BRANDS));
   const extraBrands = $derived(Math.max(0, llmBrands.length - MAX_VISIBLE_BRANDS));
   const hasChatRow = $derived((chatsCount ?? 0) > 0 || llmBrands.length > 0);
   const hasStats = $derived((filesCount ?? 0) > 0 || (collectionsCount ?? 0) > 0);
-
-  // ─── Rename ──────────────────────────────────────────────
-  let editing = $state(false);
-  let editValue = $state(title);
-  let inputEl = $state<HTMLInputElement | null>(null);
-
-  $effect(() => {
-    if (editing && inputEl) {
-      inputEl.focus();
-      inputEl.select();
-    }
-  });
-
-  function startEdit(e: MouseEvent) {
-    if (!onrename) return;
-    e.stopPropagation();
-    editValue = title;
-    editing = true;
-  }
-
-  function commit() {
-    const trimmed = editValue.trim();
-    if (trimmed) onrename?.(trimmed);
-    editing = false;
-  }
-
-  function onKeyDown(e: KeyboardEvent) {
-    if (e.key === "Enter") commit();
-    if (e.key === "Escape") editing = false;
-  }
 </script>
 
 {#snippet body()}
   <div class="cfa__body">
     <!-- Title -->
     <div class="cfa__header">
-      {#if editing}
-        <input
-          bind:this={inputEl}
-          bind:value={editValue}
-          class="cfa__input"
-          onblur={commit}
-          onkeydown={onKeyDown}
-          onmousedown={(e) => e.stopPropagation()}
-        />
-      {:else}
-        <button
-          type="button"
-          class="cfa__title"
-          ondblclick={startEdit}
-          onclick={(e) => e.stopPropagation()}
-          onmousedown={(e) => onrename && e.stopPropagation()}
-        >
-          {title}
-        </button>
-      {/if}
+      <FolderCardTitle {folderId} {title} {onEditingChange} />
     </div>
 
     <!-- Brand stack + chat count -->
@@ -109,7 +63,6 @@
 
         {#if (chatsCount ?? 0) > 0}
           <span class="cfa__meta">
-            <MessageSquare class="cfa__meta-icon" />
             {chatsCount}
             {chatsCount === 1 ? "chat" : "chats"}
           </span>
@@ -206,35 +159,6 @@
   /* ─── Title ──────────────────────────────────────────────── */
   .cfa__header {
     min-width: 0;
-  }
-
-  .cfa__title {
-    display: block;
-    font-size: var(--text-sm);
-    font-weight: var(--font-weight-semibold);
-    color: var(--text-primary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    cursor: text;
-    transition: color var(--duration-fast) var(--ease-default);
-  }
-
-  .cfa__title:hover {
-    color: var(--brand-text);
-  }
-
-  .cfa__input {
-    font-size: var(--text-sm);
-    font-weight: var(--font-weight-semibold);
-    color: var(--text-primary);
-    background: transparent;
-    border: none;
-    border-bottom: 1px solid var(--brand-default);
-    outline: none;
-    width: 100%;
-    padding: 0;
-    caret-color: var(--brand-default);
   }
 
   /* ─── Chats row ──────────────────────────────────────────── */
@@ -365,8 +289,12 @@
   }
 
   @keyframes cfa-pulse {
-    from { opacity: 0.7; }
-    to   { opacity: 1; }
+    from {
+      opacity: 0.7;
+    }
+    to {
+      opacity: 1;
+    }
   }
 
   /* ─── Hover (link only) ──────────────────────────────────── */
