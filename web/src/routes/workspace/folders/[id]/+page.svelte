@@ -40,6 +40,7 @@
         {folder}
         activeChatId={activeFolderChat?.id}
         onchatselect={(c) => { activeFolderChat = c; }}
+        onrename={(t) => renameFolder(folder.id, t)}
       />
     {/if}
   {/snippet}

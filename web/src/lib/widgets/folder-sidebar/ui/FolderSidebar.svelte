@@ -9,6 +9,7 @@
     Trash2,
     ChevronsRight,
     ChevronsLeft,
+    Pencil,
   } from "@lucide/svelte";
   import { LlmIcon } from "$lib/shared/ui";
   import {
@@ -22,9 +23,10 @@
     folder: FolderItem;
     activeChatId?: string;
     onchatselect?: (chat: FolderChat) => void;
+    onrename?: (newTitle: string) => void;
   }
 
-  const { folder, activeChatId, onchatselect }: Props = $props();
+  const { folder, activeChatId, onchatselect, onrename }: Props = $props();
 
   const BRAND_LABELS: Record<string, string> = {
     openai: "ChatGPT",
@@ -36,6 +38,35 @@
 
   // ── Collapsed state (local only) ────────────────────────
   let collapsed = $state(false);
+
+  // ── Title editing ────────────────────────────────────────
+  let editingTitle = $state(false);
+  let titleDraft = $state("");
+  let titleInputEl = $state<HTMLInputElement | null>(null);
+
+  function startTitleEdit() {
+    if (!onrename) return;
+    titleDraft = folder.title;
+    editingTitle = true;
+  }
+
+  $effect(() => {
+    if (editingTitle && titleInputEl) {
+      titleInputEl.focus();
+      titleInputEl.select();
+    }
+  });
+
+  function commitTitle() {
+    const t = titleDraft.trim();
+    if (t) onrename?.(t);
+    editingTitle = false;
+  }
+
+  function onTitleKeyDown(e: KeyboardEvent) {
+    if (e.key === "Enter") commitTitle();
+    if (e.key === "Escape") editingTitle = false;
+  }
 
   // ── Context menu ────────────────────────────────────────
   let openMenuId = $state<string | null>(null);
@@ -84,7 +115,25 @@
         <FolderOpen class="fs__folder-svg" />
       </div>
     {/if}
-    <span class="fs__header-title">{folder.title}</span>
+
+    <div class="fs__header-meta">
+      {#if editingTitle}
+        <input
+          bind:this={titleInputEl}
+          bind:value={titleDraft}
+          class="fs__title-input"
+          onblur={commitTitle}
+          onkeydown={onTitleKeyDown}
+        />
+      {:else if onrename}
+        <button class="fs__title-btn" onclick={startTitleEdit} aria-label="Rename folder" type="button">
+          <span class="fs__header-title">{folder.title}</span>
+          <Pencil class="fs__title-pencil" />
+        </button>
+      {:else}
+        <span class="fs__header-title">{folder.title}</span>
+      {/if}
+    </div>
 
     <button
       class="fs__collapse-btn"
@@ -312,15 +361,84 @@
     height: 1rem;
   }
 
-  .fs__header-title {
+  /* ── Header meta (title area) ──────────────────────── */
+  .fs__header-meta {
     flex: 1;
     min-width: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  .fs__header-title {
     font-size: var(--text-sm);
     font-weight: var(--font-weight-semibold);
     color: var(--text-primary);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    min-width: 0;
+  }
+
+  /* ── Title edit button ──────────────────────────────── */
+  .fs__title-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    max-width: 100%;
+    min-width: 0;
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 0.125rem var(--spacing-1);
+    margin-left: calc(-1 * var(--spacing-1));
+    cursor: text;
+    text-align: left;
+    transition: background var(--duration-fast) var(--ease-default);
+  }
+
+  .fs__title-btn:hover {
+    background: var(--color-neutral-100);
+  }
+
+  :global([data-theme="dark"]) .fs__title-btn:hover {
+    background: var(--color-neutral-700);
+  }
+
+  :global(.fs__title-pencil) {
+    width: 0.6875rem;
+    height: 0.6875rem;
+    color: var(--text-subtle);
+    flex-shrink: 0;
+    opacity: 0;
+    transition: opacity var(--duration-fast) var(--ease-default);
+  }
+
+  .fs__title-btn:hover :global(.fs__title-pencil) {
+    opacity: 1;
+  }
+
+  /* ── Title input ────────────────────────────────────── */
+  .fs__title-input {
+    flex: 1;
+    min-width: 0;
+    width: 100%;
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+    font-family: inherit;
+    background: #ffffff;
+    border: 1.5px solid var(--brand-default);
+    border-radius: var(--radius-sm);
+    outline: none;
+    padding: 0.125rem var(--spacing-2);
+    caret-color: var(--brand-default);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-default) 12%, transparent);
+  }
+
+  :global([data-theme="dark"]) .fs__title-input {
+    background: var(--color-neutral-800);
+    color: var(--color-neutral-50);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-default) 22%, transparent);
   }
 
   /* ── Collapse toggle ────────────────────────────────── */
