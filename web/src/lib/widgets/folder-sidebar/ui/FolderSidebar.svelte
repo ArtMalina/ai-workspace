@@ -102,7 +102,31 @@
   </div>
 
   {#if collapsed}
-    <!-- ── Collapsed: icon + short title list ─────────────── -->
+    <!-- ── Collapsed: resources + chat list ───────────────── -->
+
+    <!-- Resource rows -->
+    <div class="fs__mini-res">
+      <div class="fs__mini-res-row" title="Files">
+        <FileText class="fs__mini-res-icon" />
+        <span class="fs__mini-res-count">{folder.filesCount}</span>
+        <span class="fs__mini-res-label">Files</span>
+      </div>
+      <div class="fs__mini-res-row" title="Collections">
+        <Layers class="fs__mini-res-icon" />
+        <span class="fs__mini-res-count">{folder.collectionsCount}</span>
+        <span class="fs__mini-res-label">Collections</span>
+      </div>
+    </div>
+
+    <div class="fs__mini-divider"></div>
+
+    <!-- Chats label -->
+    <div class="fs__mini-chats-header">
+      <span class="fs__mini-chats-label">Chats</span>
+      <span class="fs__mini-chats-count">{folder.chats.length}</span>
+    </div>
+
+    <!-- Chat list -->
     <ul class="fs__icon-list">
       {#each folder.chats as chat (chat.id)}
         <li
@@ -332,6 +356,121 @@
     height: 0.9rem;
   }
 
+  /* ── Collapsed resource rows ────────────────────────── */
+  .fs__mini-res {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: var(--spacing-3) var(--spacing-2) var(--spacing-2);
+  }
+
+  .fs__mini-res-row {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    padding: var(--spacing-2) var(--spacing-2);
+    border-radius: var(--radius-md);
+    background: var(--color-neutral-50);
+    border: 1px solid var(--color-neutral-200);
+  }
+
+  :global([data-theme="dark"]) .fs__mini-res-row {
+    background: var(--color-neutral-700);
+    border-color: var(--color-neutral-600);
+  }
+
+  :global(.fs__mini-res-icon) {
+    width: 0.8125rem;
+    height: 0.8125rem;
+    flex-shrink: 0;
+    color: var(--text-subtle);
+  }
+
+  :global([data-theme="dark"]) .fs__mini-res-icon {
+    color: var(--color-neutral-500);
+  }
+
+  .fs__mini-res-count {
+    font-size: var(--text-xs);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+
+  :global([data-theme="dark"]) .fs__mini-res-count {
+    color: var(--color-neutral-100);
+  }
+
+  .fs__mini-res-label {
+    flex: 1;
+    min-width: 0;
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1;
+  }
+
+  :global([data-theme="dark"]) .fs__mini-res-label {
+    color: var(--color-neutral-500);
+  }
+
+  /* ── Collapsed divider ──────────────────────────────── */
+  .fs__mini-divider {
+    flex-shrink: 0;
+    height: 1px;
+    margin: var(--spacing-1) var(--spacing-2);
+    background: var(--color-neutral-200);
+  }
+
+  :global([data-theme="dark"]) .fs__mini-divider {
+    background: var(--color-neutral-700);
+  }
+
+  /* ── Collapsed chats header ─────────────────────────── */
+  .fs__mini-chats-header {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-1) var(--spacing-3);
+    margin-bottom: var(--spacing-1);
+  }
+
+  .fs__mini-chats-label {
+    font-size: var(--text-xs);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-subtle);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  :global([data-theme="dark"]) .fs__mini-chats-label {
+    color: var(--color-neutral-500);
+  }
+
+  .fs__mini-chats-count {
+    font-size: var(--text-xs);
+    font-weight: var(--font-weight-medium);
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+    background: var(--color-neutral-100);
+    border: 1px solid var(--color-neutral-200);
+    border-radius: var(--radius-full);
+    padding: 0 0.375rem;
+    line-height: 1.5;
+  }
+
+  :global([data-theme="dark"]) .fs__mini-chats-count {
+    background: var(--color-neutral-700);
+    border-color: var(--color-neutral-600);
+    color: var(--color-neutral-400);
+  }
+
   /* ── Collapsed icon list ────────────────────────────── */
   .fs__icon-list {
     flex: 1;
@@ -340,11 +479,11 @@
     overflow-x: hidden;
     list-style: none;
     margin: 0;
-    padding: var(--spacing-2) 0;
+    padding-bottom: var(--spacing-2);
     display: flex;
     flex-direction: column;
-    align-items: center;
     gap: 2px;
+    padding-inline: var(--spacing-2);
     /* hide scrollbar but allow scroll */
     scrollbar-width: none;
   }
