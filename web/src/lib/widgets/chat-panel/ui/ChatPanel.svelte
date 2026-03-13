@@ -275,11 +275,11 @@
   /* ══ Sidebar ══════════════════════════════════════════════ */
 
   .cp-aside {
-    width: 22rem;
+    /* width is controlled by the inner FolderSidebar (.fs) */
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
-    overflow-y: auto;
+    overflow: hidden;
     border-radius: var(--radius-xl);
     background: #ffffff;
     border: 1px solid var(--color-neutral-200);

@@ -4,9 +4,11 @@
     FileText,
     Layers,
     Plus,
-    MoreVertical,
+    EllipsisVertical,
     FolderMinus,
     Trash2,
+    ChevronsRight,
+    ChevronsLeft,
   } from "@lucide/svelte";
   import { LlmIcon } from "$lib/shared/ui";
   import {
@@ -31,6 +33,9 @@
     llama: "Llama",
     mistral: "Mistral",
   };
+
+  // ── Collapsed state (local only) ────────────────────────
+  let collapsed = $state(false);
 
   // ── Context menu ────────────────────────────────────────
   let openMenuId = $state<string | null>(null);
@@ -71,91 +76,130 @@
 
 <svelte:window onpointerdown={onWindowPointerDown} />
 
-<div class="fs">
+<div class="fs" class:fs--collapsed={collapsed}>
   <!-- ── Header ──────────────────────────────────────────── -->
   <div class="fs__header">
-    <div class="fs__header-icon">
-      <FolderOpen class="fs__folder-svg" />
-    </div>
-    <span class="fs__header-title">{folder.title}</span>
+    {#if !collapsed}
+      <div class="fs__header-icon">
+        <FolderOpen class="fs__folder-svg" />
+      </div>
+      <span class="fs__header-title">{folder.title}</span>
+    {/if}
+
+    <button
+      class="fs__collapse-btn"
+      class:fs__collapse-btn--solo={collapsed}
+      onclick={() => (collapsed = !collapsed)}
+      aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+      title={collapsed ? "Expand" : "Collapse"}
+      type="button"
+    >
+      {#if collapsed}
+        <ChevronsLeft class="fs__collapse-icon" />
+      {:else}
+        <ChevronsRight class="fs__collapse-icon" />
+      {/if}
+    </button>
   </div>
 
-  <!-- ── Models ──────────────────────────────────────────── -->
-  <section class="fs__section">
-    <h4 class="fs__section-label">Models</h4>
-    {#if folder.llmBrands.length > 0}
-      <div class="fs__brands">
-        {#each folder.llmBrands as brand (brand)}
-          <div class="fs__brand-chip">
-            <LlmIcon {brand} size={13} class="fs__brand-svg" />
-            <span>{BRAND_LABELS[brand] ?? brand}</span>
-          </div>
-        {/each}
-      </div>
-    {:else}
-      <p class="fs__muted">No models assigned</p>
-    {/if}
-  </section>
-
-  <!-- ── Resources ───────────────────────────────────────── -->
-  <section class="fs__section">
-    <h4 class="fs__section-label">Resources</h4>
-    <div class="fs__resources">
-      <div class="fs__res-card">
-        <FileText class="fs__res-icon" />
-        <span class="fs__res-val">{folder.filesCount}</span>
-        <span class="fs__res-label">Files</span>
-      </div>
-      <div class="fs__res-card">
-        <Layers class="fs__res-icon" />
-        <span class="fs__res-val">{folder.collectionsCount}</span>
-        <span class="fs__res-label">Collections</span>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── Chats ────────────────────────────────────────────── -->
-  <section class="fs__section fs__section--grow">
-    <div class="fs__chats-header">
-      <h4 class="fs__section-label">Chats · {folder.chats.length}</h4>
-      <button class="fs__chats-add" aria-label="New chat" type="button">
-        <Plus class="fs__chats-add-icon" />
-      </button>
-    </div>
-
-    {#if folder.chats.length > 0}
-      <ul class="fs__chat-list">
-        {#each folder.chats as chat (chat.id)}
-          <li
-            class="fs__chat-item"
-            class:fs__chat-item--active={activeChatId === chat.id}
-            class:fs__chat-item--menu-open={openMenuId === chat.id}
+  {#if collapsed}
+    <!-- ── Collapsed: icon-only chat list ─────────────────── -->
+    <ul class="fs__icon-list">
+      {#each folder.chats as chat (chat.id)}
+        <li
+          class="fs__icon-item"
+          class:fs__icon-item--active={activeChatId === chat.id}
+          title={chat.title}
+        >
+          <button
+            class="fs__icon-btn"
+            type="button"
+            onclick={() => onchatselect?.(chat)}
+            aria-label={chat.title}
           >
-            <button class="fs__chat-row" type="button" onclick={() => onchatselect?.(chat)}>
-              <div class="fs__chat-model-icon">
-                <LlmIcon brand={chat.model ?? "openai"} size={13} />
-              </div>
-              <span class="fs__chat-title">{chat.title}</span>
-            </button>
+            <LlmIcon brand={chat.model ?? "openai"} size={15} />
+          </button>
+        </li>
+      {/each}
+    </ul>
+  {:else}
+    <!-- ── Models ──────────────────────────────────────────── -->
+    <section class="fs__section">
+      <h4 class="fs__section-label">Models</h4>
+      {#if folder.llmBrands.length > 0}
+        <div class="fs__brands">
+          {#each folder.llmBrands as brand (brand)}
+            <div class="fs__brand-chip">
+              <LlmIcon {brand} size={13} class="fs__brand-svg" />
+              <span>{BRAND_LABELS[brand] ?? brand}</span>
+            </div>
+          {/each}
+        </div>
+      {:else}
+        <p class="fs__muted">No models assigned</p>
+      {/if}
+    </section>
 
-            <button
-              class="fs__chat-menu-btn"
-              type="button"
-              aria-label="Chat options"
-              aria-haspopup="menu"
-              aria-expanded={openMenuId === chat.id}
-              data-chat-menu
-              onclick={(e) => openMenu(e, chat.id)}
+    <!-- ── Resources ───────────────────────────────────────── -->
+    <section class="fs__section">
+      <h4 class="fs__section-label">Resources</h4>
+      <div class="fs__resources">
+        <div class="fs__res-card">
+          <FileText class="fs__res-icon" />
+          <span class="fs__res-val">{folder.filesCount}</span>
+          <span class="fs__res-label">Files</span>
+        </div>
+        <div class="fs__res-card">
+          <Layers class="fs__res-icon" />
+          <span class="fs__res-val">{folder.collectionsCount}</span>
+          <span class="fs__res-label">Collections</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Chats ────────────────────────────────────────────── -->
+    <section class="fs__section fs__section--grow">
+      <div class="fs__chats-header">
+        <h4 class="fs__section-label">Chats · {folder.chats.length}</h4>
+        <button class="fs__chats-add" aria-label="New chat" type="button">
+          <Plus class="fs__chats-add-icon" />
+        </button>
+      </div>
+
+      {#if folder.chats.length > 0}
+        <ul class="fs__chat-list">
+          {#each folder.chats as chat (chat.id)}
+            <li
+              class="fs__chat-item"
+              class:fs__chat-item--active={activeChatId === chat.id}
+              class:fs__chat-item--menu-open={openMenuId === chat.id}
             >
-              <MoreVertical class="fs__chat-menu-icon" />
-            </button>
-          </li>
-        {/each}
-      </ul>
-    {:else}
-      <p class="fs__muted">No chats yet</p>
-    {/if}
-  </section>
+              <button class="fs__chat-row" type="button" onclick={() => onchatselect?.(chat)}>
+                <div class="fs__chat-model-icon">
+                  <LlmIcon brand={chat.model ?? "openai"} size={13} />
+                </div>
+                <span class="fs__chat-title">{chat.title}</span>
+              </button>
+
+              <button
+                class="fs__chat-menu-btn"
+                type="button"
+                aria-label="Chat options"
+                aria-haspopup="menu"
+                aria-expanded={openMenuId === chat.id}
+                data-chat-menu
+                onclick={(e) => openMenu(e, chat.id)}
+              >
+                <EllipsisVertical class="fs__chat-menu-icon" />
+              </button>
+            </li>
+          {/each}
+        </ul>
+      {:else}
+        <p class="fs__muted">No chats yet</p>
+      {/if}
+    </section>
+  {/if}
 </div>
 
 <!-- ── Context menu popover (fixed, avoids overflow clipping) ── -->
@@ -191,6 +235,14 @@
     display: flex;
     flex-direction: column;
     height: 100%;
+    width: 22rem;
+    flex-shrink: 0;
+    overflow: hidden;
+    transition: width 240ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .fs--collapsed {
+    width: 3.25rem;
   }
 
   /* ── Header ────────────────────────────────────────── */
@@ -198,7 +250,7 @@
     display: flex;
     align-items: center;
     gap: var(--spacing-3);
-    padding: var(--spacing-3) var(--spacing-4);
+    padding: var(--spacing-3) var(--spacing-3);
     min-height: 4rem;
     flex-shrink: 0;
     background: var(--color-neutral-50);
@@ -243,6 +295,106 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  /* ── Collapse toggle ────────────────────────────────── */
+  .fs__collapse-btn {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border: none;
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--text-subtle);
+    cursor: pointer;
+    transition:
+      background var(--duration-fast) var(--ease-default),
+      color var(--duration-fast) var(--ease-default);
+  }
+
+  /* In collapsed mode the button is the only header element — center it */
+  .fs__collapse-btn--solo {
+    margin: 0 auto;
+  }
+
+  .fs__collapse-btn:hover {
+    background: var(--color-neutral-100);
+    color: var(--text-primary);
+  }
+
+  :global([data-theme="dark"]) .fs__collapse-btn:hover {
+    background: var(--color-neutral-700);
+    color: var(--color-neutral-200);
+  }
+
+  :global(.fs__collapse-icon) {
+    width: 0.9rem;
+    height: 0.9rem;
+  }
+
+  /* ── Collapsed icon list ────────────────────────────── */
+  .fs__icon-list {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    list-style: none;
+    margin: 0;
+    padding: var(--spacing-2) 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    /* hide scrollbar but allow scroll */
+    scrollbar-width: none;
+  }
+
+  .fs__icon-list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .fs__icon-item {
+    width: 2.25rem;
+    height: 2.25rem;
+    flex-shrink: 0;
+    border-radius: var(--radius-md);
+    transition: background var(--duration-fast) var(--ease-default);
+  }
+
+  .fs__icon-item:hover {
+    background: var(--color-neutral-100);
+  }
+
+  :global([data-theme="dark"]) .fs__icon-item:hover {
+    background: var(--color-neutral-700);
+  }
+
+  .fs__icon-item--active {
+    background: color-mix(in srgb, var(--brand-default) 12%, transparent);
+  }
+
+  .fs__icon-item--active:hover {
+    background: color-mix(in srgb, var(--brand-default) 18%, transparent);
+  }
+
+  :global([data-theme="dark"]) .fs__icon-item--active {
+    background: color-mix(in srgb, var(--brand-default) 16%, transparent);
+  }
+
+  .fs__icon-btn {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: var(--radius-md);
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
   }
 
   /* ── Sections ──────────────────────────────────────── */
