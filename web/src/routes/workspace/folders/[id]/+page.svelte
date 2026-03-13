@@ -1,6 +1,6 @@
 <script lang="ts">
   import { page } from "$app/stores";
-  import { ChatPanel, FolderSidebar, MessageThread } from "$lib/widgets";
+  import { ChatPanel, FolderSidebar, MessageThreadAlt } from "$lib/widgets";
   import { folders, renameFolder, type FolderChat } from "$lib/entities/workspace";
   import type { LlmBrandTypes } from "$lib/entities/llm";
 
@@ -29,7 +29,7 @@
   onsend={() => {}}
 >
   {#if folder}
-    <MessageThread messages={activeFolderChat?.messages} model={activeModel} />
+    <MessageThreadAlt messages={activeFolderChat?.messages} model={activeModel} />
   {:else}
     <p class="fp__not-found">Folder not found</p>
   {/if}

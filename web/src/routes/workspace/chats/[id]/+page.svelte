@@ -1,6 +1,6 @@
 <script lang="ts">
   import { page } from "$app/stores";
-  import { ChatPanel, MessageThread } from "$lib/widgets";
+  import { ChatPanel, MessageThreadAlt } from "$lib/widgets";
   import { chats, renameChat, updateChatSubtitle, updateChatModel } from "$lib/entities/workspace";
 
   const chat = $derived(chats.find((c) => c.id === $page.params.id));
@@ -15,7 +15,7 @@
   onmodelchange={chat ? (m) => updateChatModel(chat.id, m) : undefined}
 >
   {#if chat}
-    <MessageThread messages={chat.messages} model={chat.model} />
+    <MessageThreadAlt messages={chat.messages} model={chat.model} />
   {:else}
     <div class="pg__not-found"><p>Chat not found</p></div>
   {/if}
