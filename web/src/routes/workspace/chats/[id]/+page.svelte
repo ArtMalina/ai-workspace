@@ -15,11 +15,9 @@
   onmodelchange={chat ? (m) => updateChatModel(chat.id, m) : undefined}
 >
   {#if chat}
-    <MessageThread model={chat.model} />
+    <MessageThread messages={chat.messages} model={chat.model} />
   {:else}
-    <div class="pg__not-found">
-      <p>Chat not found</p>
-    </div>
+    <div class="pg__not-found"><p>Chat not found</p></div>
   {/if}
 </ChatPanel>
 

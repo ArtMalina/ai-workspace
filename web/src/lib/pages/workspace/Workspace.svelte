@@ -105,7 +105,7 @@
         llmBrands={folder.llmBrands}
         filesCount={folder.filesCount}
         collectionsCount={folder.collectionsCount}
-        chatsCount={folder.chatsCount}
+        chatsCount={folder.chats.length}
         isDropTarget={dropTargetId === folder.id}
         onrename={(newTitle) => renameFolder(folder.id, newTitle)}
       />

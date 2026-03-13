@@ -1,135 +1,48 @@
 <script lang="ts">
   import { LlmIcon } from "$lib/shared/ui";
   import type { LlmBrandTypes } from "$lib/entities/llm";
+  import type { ChatMessage } from "$lib/entities/workspace";
 
   interface Props {
+    messages?: ChatMessage[];
     model?: LlmBrandTypes;
   }
 
-  const { model = "claude" }: Props = $props();
-
-  type MessageRole = "user" | "assistant";
-  interface Block {
-    type: "text" | "code";
-    content: string;
-    lang?: string;
-  }
-  interface Message {
-    id: string;
-    role: MessageRole;
-    blocks: Block[];
-  }
-
-  // ── Mock conversation ────────────────────────────────────
-  const MOCK: Message[] = [
-    {
-      id: "1",
-      role: "user",
-      blocks: [{ type: "text", content: "Объясни, как работают замыкания в JavaScript." }],
-    },
-    {
-      id: "2",
-      role: "assistant",
-      blocks: [
-        {
-          type: "text",
-          content:
-            "Замыкание — это функция, которая «запоминает» лексическое окружение, в котором была создана, и сохраняет доступ к переменным этого окружения даже после того, как внешняя функция завершила выполнение.",
-        },
-        {
-          type: "code",
-          lang: "js",
-          content: `function makeCounter() {
-  let count = 0;
-  return function () {
-    count += 1;
-    return count;
-  };
-}
-
-const counter = makeCounter();
-console.log(counter()); // 1
-console.log(counter()); // 2
-console.log(counter()); // 3`,
-        },
-        {
-          type: "text",
-          content:
-            "Здесь внутренняя функция «замыкает» переменную count. Каждый вызов counter() обращается к той же ячейке памяти, поэтому значение сохраняется между вызовами.",
-        },
-      ],
-    },
-    {
-      id: "3",
-      role: "user",
-      blocks: [{ type: "text", content: "Покажи практический пример — например, мемоизацию." }],
-    },
-    {
-      id: "4",
-      role: "assistant",
-      blocks: [
-        {
-          type: "text",
-          content:
-            "Конечно. Мемоизация — классический случай, где замыкание хранит кэш вычисленных результатов:",
-        },
-        {
-          type: "code",
-          lang: "js",
-          content: `function memoize(fn) {
-  const cache = new Map();
-  return function (...args) {
-    const key = JSON.stringify(args);
-    if (cache.has(key)) return cache.get(key);
-    const result = fn(...args);
-    cache.set(key, result);
-    return result;
-  };
-}
-
-const fib = memoize(function (n) {
-  if (n <= 1) return n;
-  return fib(n - 1) + fib(n - 2);
-});
-
-console.log(fib(40)); // быстро, благодаря кэшу`,
-        },
-        {
-          type: "text",
-          content:
-            "Переменная cache живёт в замыкании — она недоступна снаружи, но сохраняется на протяжении всего времени жизни возвращённой функции.",
-        },
-      ],
-    },
-  ];
+  const { messages = [], model = "claude" }: Props = $props();
 </script>
 
-<div class="mt">
-  {#each MOCK as msg (msg.id)}
-    <div class="mt__row mt__row--{msg.role}">
-      {#if msg.role === "assistant"}
-        <div class="mt__avatar">
-          <LlmIcon brand={model} size={14} />
-        </div>
-      {/if}
+{#if messages.length > 0}
+  <div class="mt">
+    {#each messages as msg (msg.id)}
+      <div class="mt__row mt__row--{msg.role}">
+        {#if msg.role === "assistant"}
+          <div class="mt__avatar">
+            <LlmIcon brand={model} size={14} />
+          </div>
+        {/if}
 
-      <div class="mt__bubble mt__bubble--{msg.role}">
-        {#each msg.blocks as block, i (i)}
-          {#if block.type === "text"}
-            <p class="mt__text">{block.content}</p>
-          {:else}
-            <div class="mt__code-wrap">
-              {#if block.lang}
-                <span class="mt__code-lang">{block.lang}</span>
-              {/if}
-              <pre class="mt__code"><code>{block.content}</code></pre>
-            </div>
-          {/if}
-        {/each}
+        <div class="mt__bubble mt__bubble--{msg.role}">
+          {#each msg.blocks as block, i (i)}
+            {#if block.type === "text"}
+              <p class="mt__text">{block.content}</p>
+            {:else}
+              <div class="mt__code-wrap">
+                {#if block.lang}
+                  <span class="mt__code-lang">{block.lang}</span>
+                {/if}
+                <pre class="mt__code"><code>{block.content}</code></pre>
+              </div>
+            {/if}
+          {/each}
+        </div>
       </div>
-    </div>
-  {/each}
-</div>
+    {/each}
+  </div>
+{:else}
+  <div class="mt__empty">
+    <p class="mt__empty-text">No messages yet</p>
+  </div>
+{/if}
 
 <style>
   /* ── Shell ──────────────────────────────────────────────── */
@@ -140,6 +53,21 @@ console.log(fib(40)); // быстро, благодаря кэшу`,
     width: 100%;
   }
 
+  /* ── Empty state ────────────────────────────────────────── */
+  .mt__empty {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 8rem;
+  }
+
+  .mt__empty-text {
+    margin: 0;
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+  }
+
   /* ── Row ────────────────────────────────────────────────── */
   .mt__row {
     display: flex;
@@ -147,13 +75,8 @@ console.log(fib(40)); // быстро, благодаря кэшу`,
     gap: var(--spacing-2);
   }
 
-  .mt__row--user {
-    flex-direction: row-reverse;
-  }
-
-  .mt__row--assistant {
-    flex-direction: row;
-  }
+  .mt__row--user      { flex-direction: row-reverse; }
+  .mt__row--assistant { flex-direction: row; }
 
   /* ── Avatar ─────────────────────────────────────────────── */
   .mt__avatar {
@@ -185,14 +108,12 @@ console.log(fib(40)); // быстро, благодаря кэшу`,
     line-height: var(--leading-normal);
   }
 
-  /* User bubble */
   .mt__bubble--user {
     background: var(--btn-brand-fill-bg);
     color: var(--btn-brand-fill-fg);
     border-bottom-right-radius: var(--radius-sm);
   }
 
-  /* Assistant bubble */
   .mt__bubble--assistant {
     background: var(--color-neutral-50);
     border: 1px solid var(--color-neutral-200);
@@ -210,6 +131,7 @@ console.log(fib(40)); // быстро, благодаря кэшу`,
   .mt__text {
     margin: 0;
     font-size: var(--text-sm);
+    white-space: pre-line;
   }
 
   /* ── Code block ─────────────────────────────────────────── */

@@ -9,14 +9,20 @@
     Trash2,
   } from "@lucide/svelte";
   import { LlmIcon } from "$lib/shared/ui";
-  import type { FolderItem } from "$lib/entities/workspace";
-  import type { LlmBrandTypes } from "$lib/entities/llm";
+  import {
+    type FolderItem,
+    type FolderChat,
+    removeChatFromFolder,
+    deleteFolderChat,
+  } from "$lib/entities/workspace";
 
   interface Props {
     folder: FolderItem;
+    activeChatId?: string;
+    onchatselect?: (chat: FolderChat) => void;
   }
 
-  const { folder }: Props = $props();
+  const { folder, activeChatId, onchatselect }: Props = $props();
 
   const BRAND_LABELS: Record<string, string> = {
     openai: "ChatGPT",
@@ -26,26 +32,6 @@
     mistral: "Mistral",
   };
 
-  // Placeholder chats — in future will be real folder-scoped data
-  const MOCK_CHAT_MODELS: LlmBrandTypes[] = ["claude", "openai", "qwen", "llama", "mistral"];
-  const MOCK_CHAT_TITLES = [
-    "Draft email to client",
-    "Code review notes",
-    "Translate article",
-    "Summarise meeting",
-    "Research competitors",
-    "Write test cases",
-    "Refactor auth module",
-  ];
-
-  const mockChats = $derived(
-    Array.from({ length: folder.chatsCount }, (_, i) => ({
-      id: `mock-${i}`,
-      title: MOCK_CHAT_TITLES[i % MOCK_CHAT_TITLES.length],
-      model: MOCK_CHAT_MODELS[i % MOCK_CHAT_MODELS.length],
-    })),
-  );
-
   // ── Context menu ────────────────────────────────────────
   let openMenuId = $state<string | null>(null);
   let menuX = $state(0);
@@ -53,36 +39,27 @@
 
   function openMenu(e: MouseEvent, id: string) {
     e.stopPropagation();
-    if (openMenuId === id) {
-      openMenuId = null;
-      return;
-    }
+    if (openMenuId === id) { openMenuId = null; return; }
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-    // Align right edge of menu with right edge of button
     menuX = rect.right;
     menuY = rect.bottom + 4;
     openMenuId = id;
   }
 
-  function closeMenu() {
-    openMenuId = null;
-  }
+  function closeMenu() { openMenuId = null; }
 
   function onWindowPointerDown(e: PointerEvent) {
     if (!openMenuId) return;
-    const target = e.target as HTMLElement;
-    if (!target.closest("[data-chat-menu]")) closeMenu();
+    if (!(e.target as HTMLElement).closest("[data-chat-menu]")) closeMenu();
   }
 
-  function removeFromFolder(id: string) {
-    // TODO: wire to store when real data is ready
-    console.log("remove from folder", id);
+  function handleRemove(chatId: string) {
+    removeChatFromFolder(chatId, folder.id);
     closeMenu();
   }
 
-  function deleteChat(id: string) {
-    // TODO: wire to store when real data is ready
-    console.log("delete chat", id);
+  function handleDelete(chatId: string) {
+    deleteFolderChat(chatId, folder.id);
     closeMenu();
   }
 </script>
@@ -135,18 +112,26 @@
   <!-- ── Chats ────────────────────────────────────────────── -->
   <section class="fs__section fs__section--grow">
     <div class="fs__chats-header">
-      <h4 class="fs__section-label">Chats</h4>
+      <h4 class="fs__section-label">Chats · {folder.chats.length}</h4>
       <button class="fs__chats-add" aria-label="New chat" type="button">
         <Plus class="fs__chats-add-icon" />
       </button>
     </div>
 
-    {#if mockChats.length > 0}
+    {#if folder.chats.length > 0}
       <ul class="fs__chat-list">
-        {#each mockChats as chat (chat.id)}
-          <li class="fs__chat-item" class:fs__chat-item--menu-open={openMenuId === chat.id}>
+        {#each folder.chats as chat (chat.id)}
+          <li
+            class="fs__chat-item"
+            class:fs__chat-item--active={activeChatId === chat.id}
+            class:fs__chat-item--menu-open={openMenuId === chat.id}
+            role="button"
+            tabindex="0"
+            onclick={() => onchatselect?.(chat)}
+            onkeydown={(e) => e.key === "Enter" && onchatselect?.(chat)}
+          >
             <div class="fs__chat-model-icon">
-              <LlmIcon brand={chat.model} size={13} />
+              <LlmIcon brand={chat.model ?? "openai"} size={13} />
             </div>
             <span class="fs__chat-title">{chat.title}</span>
 
@@ -172,13 +157,19 @@
 
 <!-- ── Context menu popover (fixed, avoids overflow clipping) ── -->
 {#if openMenuId}
-  <div class="fs__menu" role="menu" data-chat-menu style:left="{menuX}px" style:top="{menuY}px">
+  <div
+    class="fs__menu"
+    role="menu"
+    data-chat-menu
+    style:left="{menuX}px"
+    style:top="{menuY}px"
+  >
     <button
       class="fs__menu-item"
       role="menuitem"
       type="button"
       data-chat-menu
-      onclick={() => removeFromFolder(openMenuId!)}
+      onclick={() => handleRemove(openMenuId!)}
     >
       <FolderMinus class="fs__menu-icon" />
       <span>Убрать из папки</span>
@@ -189,7 +180,7 @@
       role="menuitem"
       type="button"
       data-chat-menu
-      onclick={() => deleteChat(openMenuId!)}
+      onclick={() => handleDelete(openMenuId!)}
     >
       <Trash2 class="fs__menu-icon" />
       <span>Удалить</span>
@@ -263,11 +254,8 @@
     flex-shrink: 0;
   }
 
-  .fs__section + .fs__section {
-    margin-top: var(--spacing-4);
-  }
+  .fs__section + .fs__section { margin-top: var(--spacing-4); }
 
-  /* Chats section fills remaining height and scrolls */
   .fs__section--grow {
     flex: 1;
     min-height: 0;
@@ -285,9 +273,7 @@
     letter-spacing: 0.06em;
   }
 
-  :global([data-theme="dark"]) .fs__section-label {
-    color: var(--color-neutral-500);
-  }
+  :global([data-theme="dark"]) .fs__section-label { color: var(--color-neutral-500); }
 
   .fs__muted {
     margin: 0;
@@ -296,11 +282,7 @@
   }
 
   /* ── Model chips ───────────────────────────────────── */
-  .fs__brands {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--spacing-2);
-  }
+  .fs__brands { display: flex; flex-wrap: wrap; gap: var(--spacing-2); }
 
   .fs__brand-chip {
     display: inline-flex;
@@ -321,18 +303,10 @@
     color: var(--color-neutral-300);
   }
 
-  :global(.fs__brand-svg) {
-    width: 0.8125rem;
-    height: 0.8125rem;
-    flex-shrink: 0;
-  }
+  :global(.fs__brand-svg) { width: 0.8125rem; height: 0.8125rem; flex-shrink: 0; }
 
   /* ── Resources cards ───────────────────────────────── */
-  .fs__resources {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--spacing-2);
-  }
+  .fs__resources { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-2); }
 
   .fs__res-card {
     display: flex;
@@ -350,16 +324,8 @@
     border-color: var(--color-neutral-600);
   }
 
-  :global(.fs__res-icon) {
-    width: 0.875rem;
-    height: 0.875rem;
-    color: var(--text-subtle);
-    flex-shrink: 0;
-  }
-
-  :global([data-theme="dark"]) .fs__res-icon {
-    color: var(--color-neutral-500);
-  }
+  :global(.fs__res-icon) { width: 0.875rem; height: 0.875rem; color: var(--text-subtle); flex-shrink: 0; }
+  :global([data-theme="dark"]) .fs__res-icon { color: var(--color-neutral-500); }
 
   .fs__res-val {
     font-size: var(--text-base);
@@ -369,19 +335,10 @@
     font-variant-numeric: tabular-nums;
   }
 
-  :global([data-theme="dark"]) .fs__res-val {
-    color: var(--color-neutral-100);
-  }
+  :global([data-theme="dark"]) .fs__res-val { color: var(--color-neutral-100); }
 
-  .fs__res-label {
-    font-size: var(--text-xs);
-    color: var(--text-muted);
-    line-height: 1;
-  }
-
-  :global([data-theme="dark"]) .fs__res-label {
-    color: var(--color-neutral-500);
-  }
+  .fs__res-label { font-size: var(--text-xs); color: var(--text-muted); line-height: 1; }
+  :global([data-theme="dark"]) .fs__res-label { color: var(--color-neutral-500); }
 
   /* ── Chats header row ──────────────────────────────── */
   .fs__chats-header {
@@ -391,9 +348,7 @@
     margin-bottom: var(--spacing-2);
   }
 
-  .fs__chats-header .fs__section-label {
-    margin: 0;
-  }
+  .fs__chats-header .fs__section-label { margin: 0; }
 
   .fs__chats-add {
     display: inline-flex;
@@ -411,20 +366,9 @@
       color var(--duration-fast) var(--ease-default);
   }
 
-  .fs__chats-add:hover {
-    background: var(--color-neutral-100);
-    color: var(--text-primary);
-  }
-
-  :global([data-theme="dark"]) .fs__chats-add:hover {
-    background: var(--color-neutral-700);
-    color: var(--color-neutral-200);
-  }
-
-  :global(.fs__chats-add-icon) {
-    width: 0.875rem;
-    height: 0.875rem;
-  }
+  .fs__chats-add:hover { background: var(--color-neutral-100); color: var(--text-primary); }
+  :global([data-theme="dark"]) .fs__chats-add:hover { background: var(--color-neutral-700); color: var(--color-neutral-200); }
+  :global(.fs__chats-add-icon) { width: 0.875rem; height: 0.875rem; }
 
   /* ── Chat list ─────────────────────────────────────── */
   .fs__chat-list {
@@ -444,10 +388,11 @@
     display: flex;
     align-items: center;
     gap: var(--spacing-2);
-    padding: var(--spacing-2) var(--spacing-2);
+    padding: var(--spacing-2);
     border-radius: var(--radius-md);
     cursor: pointer;
     transition: background var(--duration-fast) var(--ease-default);
+    outline: none;
   }
 
   .fs__chat-item:hover,
@@ -455,9 +400,21 @@
     background: var(--color-neutral-100);
   }
 
+  .fs__chat-item--active {
+    background: color-mix(in srgb, var(--brand-default) 10%, transparent);
+  }
+
+  .fs__chat-item--active:hover {
+    background: color-mix(in srgb, var(--brand-default) 15%, transparent);
+  }
+
   :global([data-theme="dark"]) .fs__chat-item:hover,
   :global([data-theme="dark"]) .fs__chat-item--menu-open {
     background: var(--color-neutral-700);
+  }
+
+  :global([data-theme="dark"]) .fs__chat-item--active {
+    background: color-mix(in srgb, var(--brand-default) 15%, transparent);
   }
 
   .fs__chat-model-icon {
@@ -488,8 +445,11 @@
     line-height: 1.4;
   }
 
-  :global([data-theme="dark"]) .fs__chat-title {
-    color: var(--color-neutral-400);
+  :global([data-theme="dark"]) .fs__chat-title { color: var(--color-neutral-400); }
+
+  .fs__chat-item--active .fs__chat-title {
+    color: var(--brand-default);
+    font-weight: var(--font-weight-medium);
   }
 
   /* ── Context menu trigger ──────────────────────────── */
@@ -512,32 +472,18 @@
       color var(--duration-fast) var(--ease-default);
   }
 
-  /* Show on row hover or when menu is open */
   .fs__chat-item:hover .fs__chat-menu-btn,
-  .fs__chat-item--menu-open .fs__chat-menu-btn {
-    opacity: 1;
-  }
+  .fs__chat-item--menu-open .fs__chat-menu-btn { opacity: 1; }
 
-  .fs__chat-menu-btn:hover {
-    background: var(--color-neutral-200);
-    color: var(--text-primary);
-  }
-
-  :global([data-theme="dark"]) .fs__chat-menu-btn:hover {
-    background: var(--color-neutral-600);
-    color: var(--color-neutral-200);
-  }
-
-  :global(.fs__chat-menu-icon) {
-    width: 0.875rem;
-    height: 0.875rem;
-  }
+  .fs__chat-menu-btn:hover { background: var(--color-neutral-200); color: var(--text-primary); }
+  :global([data-theme="dark"]) .fs__chat-menu-btn:hover { background: var(--color-neutral-600); color: var(--color-neutral-200); }
+  :global(.fs__chat-menu-icon) { width: 0.875rem; height: 0.875rem; }
 
   /* ── Popover menu ──────────────────────────────────── */
   .fs__menu {
     position: fixed;
     z-index: 200;
-    transform: translateX(-100%); /* right-align to anchor */
+    transform: translateX(-100%);
     min-width: 11rem;
     padding: var(--spacing-1);
     background: var(--surface-card);
@@ -552,20 +498,12 @@
   :global([data-theme="dark"]) .fs__menu {
     background: var(--color-neutral-800);
     border-color: var(--color-neutral-700);
-    box-shadow:
-      0 4px 8px -2px rgb(0 0 0 / 0.4),
-      0 12px 24px -6px rgb(0 0 0 / 0.5);
+    box-shadow: 0 4px 8px -2px rgb(0 0 0 / 0.4), 0 12px 24px -6px rgb(0 0 0 / 0.5);
   }
 
   @keyframes fs-menu-in {
-    from {
-      opacity: 0;
-      transform: translateX(-100%) translateY(-4px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(-100%) translateY(0);
-    }
+    from { opacity: 0; transform: translateX(-100%) translateY(-4px); }
+    to   { opacity: 1; transform: translateX(-100%) translateY(0); }
   }
 
   .fs__menu-divider {
@@ -574,16 +512,14 @@
     margin: var(--spacing-1) 0;
   }
 
-  :global([data-theme="dark"]) .fs__menu-divider {
-    border-top-color: var(--color-neutral-700);
-  }
+  :global([data-theme="dark"]) .fs__menu-divider { border-top-color: var(--color-neutral-700); }
 
   .fs__menu-item {
     display: flex;
     align-items: center;
     gap: var(--spacing-2);
     width: 100%;
-    padding: var(--spacing-2) var(--spacing-2);
+    padding: var(--spacing-2);
     border: none;
     border-radius: var(--radius-md);
     background: transparent;
@@ -597,37 +533,20 @@
       color var(--duration-fast) var(--ease-default);
   }
 
-  .fs__menu-item:hover {
-    background: var(--color-neutral-100);
-    color: var(--text-primary);
-  }
+  .fs__menu-item:hover { background: var(--color-neutral-100); color: var(--text-primary); }
+  :global([data-theme="dark"]) .fs__menu-item:hover { background: var(--color-neutral-700); color: var(--color-neutral-100); }
 
-  :global([data-theme="dark"]) .fs__menu-item:hover {
-    background: var(--color-neutral-700);
-    color: var(--color-neutral-100);
-  }
-
-  .fs__menu-item--danger {
-    color: var(--color-red-600, #dc2626);
-  }
-
+  .fs__menu-item--danger { color: var(--color-red-600, #dc2626); }
   .fs__menu-item--danger:hover {
     background: color-mix(in srgb, var(--color-red-600, #dc2626) 10%, transparent);
     color: var(--color-red-600, #dc2626);
   }
 
-  :global([data-theme="dark"]) .fs__menu-item--danger {
-    color: var(--color-red-400, #f87171);
-  }
-
+  :global([data-theme="dark"]) .fs__menu-item--danger { color: var(--color-red-400, #f87171); }
   :global([data-theme="dark"]) .fs__menu-item--danger:hover {
     background: color-mix(in srgb, var(--color-red-500, #ef4444) 15%, transparent);
     color: var(--color-red-400, #f87171);
   }
 
-  :global(.fs__menu-icon) {
-    width: 0.875rem;
-    height: 0.875rem;
-    flex-shrink: 0;
-  }
+  :global(.fs__menu-icon) { width: 0.875rem; height: 0.875rem; flex-shrink: 0; }
 </style>
