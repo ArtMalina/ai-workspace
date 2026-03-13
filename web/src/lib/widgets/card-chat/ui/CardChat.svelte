@@ -67,7 +67,7 @@
     {:else}
       <button
         type="button"
-        class="card-chat__title"
+        class="card-chat__title text-left"
         ondblclick={startEdit}
         onclick={(e) => e.stopPropagation()}
         onmousedown={(e) => onrename && e.stopPropagation()}
