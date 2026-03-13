@@ -5,7 +5,7 @@
   import { CloseButton } from "$lib/shared/ui";
   import { MessageInput } from "$lib/features/chat";
   import { LlmBrandIcon } from "$lib/features/llm-brand-icon";
-  import { PanelExpandButton, expanded } from "$lib/features/panel-expand";
+  import { PanelExpandButton, panelExpandState } from "$lib/features/panel-expand";
   import { goto } from "$app/navigation";
   import { fly } from "svelte/transition";
 
@@ -167,13 +167,17 @@
   </div>
 
   <!-- ══ Input ══ -->
-  <MessageInput {onsend} {model} onmodelchange={onmodelchange} />
+  <MessageInput {onsend} {model} {onmodelchange} />
 {/snippet}
 
 <!-- ─── Layout: with sidebar OR standalone ────────────── -->
 {#if sidebar}
-  <div class="cp-frame" class:cp-frame--expanded={expanded} transition:fly={{ y: 20, duration: 220 }}>
-    <div class="cp cp--framed" class:cp--expanded={expanded}>
+  <div
+    class="cp-frame"
+    class:cp-frame--expanded={panelExpandState.expanded}
+    transition:fly={{ y: 20, duration: 220 }}
+  >
+    <div class="cp cp--framed" class:cp--expanded={panelExpandState.expanded}>
       {@render panelInner()}
     </div>
     <aside class="cp-aside">
@@ -181,7 +185,11 @@
     </aside>
   </div>
 {:else}
-  <div class="cp" class:cp--wide={expanded} transition:fly={{ y: 20, duration: 220 }}>
+  <div
+    class="cp"
+    class:cp--wide={panelExpandState.expanded}
+    transition:fly={{ y: 20, duration: 220 }}
+  >
     {@render panelInner()}
   </div>
 {/if}
@@ -386,8 +394,12 @@
     transition: background var(--duration-fast) var(--ease-default);
   }
 
-  .cp__title-btn:hover { background: var(--color-neutral-100); }
-  :global([data-theme="dark"]) .cp__title-btn:hover { background: var(--color-neutral-800); }
+  .cp__title-btn:hover {
+    background: var(--color-neutral-100);
+  }
+  :global([data-theme="dark"]) .cp__title-btn:hover {
+    background: var(--color-neutral-800);
+  }
 
   :global(.cp__title-pencil) {
     width: 0.75rem;
@@ -398,7 +410,9 @@
     transition: opacity var(--duration-fast) var(--ease-default);
   }
 
-  .cp__title-btn:hover :global(.cp__title-pencil) { opacity: 1; }
+  .cp__title-btn:hover :global(.cp__title-pencil) {
+    opacity: 1;
+  }
 
   .cp__title-input {
     flex: 1;
@@ -443,7 +457,10 @@
     text-align: left;
   }
 
-  .cp__subtitle-btn:disabled { cursor: default; pointer-events: none; }
+  .cp__subtitle-btn:disabled {
+    cursor: default;
+    pointer-events: none;
+  }
 
   .cp__subtitle-text {
     font-size: var(--text-xs);
@@ -455,7 +472,9 @@
     max-width: 40ch;
   }
 
-  :global([data-theme="dark"]) .cp__subtitle-text { color: var(--color-neutral-500); }
+  :global([data-theme="dark"]) .cp__subtitle-text {
+    color: var(--color-neutral-500);
+  }
 
   .cp__subtitle-placeholder {
     font-size: var(--text-xs);
@@ -465,8 +484,12 @@
     transition: opacity var(--duration-fast) var(--ease-default);
   }
 
-  .cp__subtitle-btn:hover .cp__subtitle-placeholder { opacity: 1; }
-  :global([data-theme="dark"]) .cp__subtitle-placeholder { color: var(--color-neutral-600); }
+  .cp__subtitle-btn:hover .cp__subtitle-placeholder {
+    opacity: 1;
+  }
+  :global([data-theme="dark"]) .cp__subtitle-placeholder {
+    color: var(--color-neutral-600);
+  }
 
   .cp__subtitle-input {
     flex: 1;

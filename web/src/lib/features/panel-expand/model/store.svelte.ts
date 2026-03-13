@@ -1,9 +1,11 @@
-export let expanded = $state(false);
+export const panelExpandState = $state({
+  expanded: false,
+});
 
 export function toggleExpanded() {
-  expanded = !expanded;
+  panelExpandState.expanded = !panelExpandState.expanded;
 }
 
 export function setExpanded(value: boolean) {
-  expanded = value;
+  panelExpandState.expanded = value;
 }

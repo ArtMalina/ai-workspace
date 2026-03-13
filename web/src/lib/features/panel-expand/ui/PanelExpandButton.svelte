@@ -1,17 +1,17 @@
 <script lang="ts">
   import { ArrowLeftRight, ArrowRightLeft } from "@lucide/svelte";
-  import { expanded, toggleExpanded } from "../model/store.svelte";
+  import { panelExpandState, toggleExpanded } from "../model/store.svelte";
 </script>
 
 <button
   class="peb"
-  class:peb--active={expanded}
+  class:peb--active={panelExpandState.expanded}
   onclick={toggleExpanded}
-  aria-label={expanded ? "Collapse panel" : "Expand panel"}
-  title={expanded ? "Collapse" : "Expand"}
+  aria-label={panelExpandState.expanded ? "Collapse panel" : "Expand panel"}
+  title={panelExpandState.expanded ? "Collapse" : "Expand"}
   type="button"
 >
-  {#if expanded}
+  {#if panelExpandState.expanded}
     <ArrowRightLeft class="peb__icon" />
   {:else}
     <ArrowLeftRight class="peb__icon" />
