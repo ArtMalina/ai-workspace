@@ -97,7 +97,7 @@
       title={collapsed ? "Expand" : "Collapse"}
       type="button"
     >
-      {#if collapsed}
+      {#if !collapsed}
         <ChevronsLeft class="fs__collapse-icon" />
       {:else}
         <ChevronsRight class="fs__collapse-icon" />
