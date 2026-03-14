@@ -1,6 +1,6 @@
 <script lang="ts">
   import { page } from "$app/stores";
-  import { Loader2 } from "@lucide/svelte";
+  import { LoaderCircle } from "@lucide/svelte";
   import {
     ChatPanel,
     FolderSidebar,
@@ -57,12 +57,14 @@
     }
 
     loadingChat = true;
-    fetchChat(chatId).then((session) => {
-      // Guard: ignore stale response if selection changed while awaiting
-      if (activeFolderChatId === chatId) activeChatSession = session;
-    }).finally(() => {
-      if (activeFolderChatId === chatId) loadingChat = false;
-    });
+    fetchChat(chatId)
+      .then((session) => {
+        // Guard: ignore stale response if selection changed while awaiting
+        if (activeFolderChatId === chatId) activeChatSession = session;
+      })
+      .finally(() => {
+        if (activeFolderChatId === chatId) loadingChat = false;
+      });
   });
 
   const activeModel = $derived<LlmBrandTypes | undefined>(
@@ -78,12 +80,12 @@
 >
   {#if loading}
     <div class="fp__loading" aria-label="Loading folder">
-      <Loader2 size={20} class="fp__loading-icon" />
+      <LoaderCircle size={20} class="fp__loading-icon" />
     </div>
   {:else if folder}
     {#if loadingChat}
       <div class="fp__loading" aria-label="Loading chat">
-        <Loader2 size={20} class="fp__loading-icon" />
+        <LoaderCircle size={20} class="fp__loading-icon" />
       </div>
     {:else if chatViewState.mode === "alt"}
       <MessageThreadAlt messages={activeChatSession?.messages} model={activeModel} />
@@ -130,6 +132,8 @@
   }
 
   @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+      transform: rotate(360deg);
+    }
   }
 </style>
