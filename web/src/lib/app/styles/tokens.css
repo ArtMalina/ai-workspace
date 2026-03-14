@@ -24,6 +24,9 @@
   --color-neutral-200: #e4e4e7;
   --color-neutral-300: #d4d4d8;
   --color-neutral-400: #a1a1aa;
+  /* neutral-450: non-standard Zinc intermediate, used only for --text-muted in
+     dark mode. Passes WCAG AA on both neutral-800 (4.71:1) and neutral-950 (6.28:1). */
+  --color-neutral-450: #909099;
   --color-neutral-500: #71717a;
   --color-neutral-600: #52525b;
   --color-neutral-700: #3f3f46;

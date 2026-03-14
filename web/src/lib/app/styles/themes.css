@@ -83,11 +83,17 @@
   --surface-overlay: var(--color-neutral-700);
 
   /* Text */
-  --text-primary: var(--color-neutral-50);
-  --text-secondary: var(--color-neutral-300);
-  --text-subtle: var(--color-neutral-400);
-  --text-muted: var(--color-neutral-500); /* placeholder/decorative — WCAG 1.4.3 exempt */
+  --text-primary: var(--color-neutral-50); /* 19.1:1 on surface-page  ✓ AAA */
+  --text-secondary: var(--color-neutral-300); /*  11.5:1 on surface-page  ✓ AAA */
+  --text-subtle: var(--color-neutral-400); /*   7.8:1 on surface-page  ✓ AAA */
+  --text-muted: var(
+    --color-neutral-450
+  ); /*   6.3:1 on surface-page  ✓ AA  |  4.7:1 on surface-card ✓ AA */
+  /* ↑ neutral-450 (#909099) is a custom Zinc intermediate — see tokens.css.
+     neutral-500 (#71717a) failed AA on both dark surfaces (4.12:1 / 3.08:1). */
   --text-inverted: var(--color-neutral-900);
+  /* ↑ text-inverted is near-black: only use it over light-colored backgrounds
+     (e.g., filled brand buttons). Never apply directly over dark surfaces. */
 
   /* Border */
   --border-subtle: var(--color-neutral-700);
@@ -158,9 +164,10 @@
   --color-surface-elevated: var(--surface-elevated);
   --color-surface-overlay: var(--surface-overlay);
 
-  /* Foreground — text-fg, text-fg-secondary, text-fg-muted, ... */
+  /* Foreground — text-fg, text-fg-secondary, text-fg-subtle, text-fg-muted */
   --color-fg: var(--text-primary);
   --color-fg-secondary: var(--text-secondary);
+  --color-fg-subtle: var(--text-subtle);
   --color-fg-muted: var(--text-muted);
   --color-fg-inverted: var(--text-inverted);
 
