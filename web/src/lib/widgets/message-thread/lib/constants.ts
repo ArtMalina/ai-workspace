@@ -1,5 +1,5 @@
 import type { LlmBrandTypes } from "$lib/entities/llm";
-import type { ChatMessage } from "$lib/entities/workspace";
+import type { ChatMessage } from "$lib/entities/chat";
 
 // ─── Model display labels ─────────────────────────────────
 export const MODEL_LABELS: Record<string, string> = {

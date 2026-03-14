@@ -1,13 +1,20 @@
 <script lang="ts">
   import { page } from "$app/stores";
-  import { ChatPanel, FolderSidebar, MessageThread, MessageThreadAlt, chatViewState } from "$lib/widgets";
-  import { folders, renameFolder, type FolderChat } from "$lib/entities/workspace";
+  import {
+    ChatPanel,
+    FolderSidebar,
+    MessageThread,
+    MessageThreadAlt,
+    chatViewState,
+  } from "$lib/widgets";
+  import { folders, renameFolder } from "$lib/entities/workspace";
+  import type { ChatSession } from "$lib/entities/chat";
   import type { LlmBrandTypes } from "$lib/entities/llm";
 
   const folder = $derived(folders.find((f) => f.id === $page.params.id));
 
   // Active chat inside the folder (defaults to first chat)
-  let activeFolderChat = $state<FolderChat | undefined>(undefined);
+  let activeFolderChat = $state<ChatSession | undefined>(undefined);
 
   $effect(() => {
     if (folder) {
@@ -43,7 +50,9 @@
       <FolderSidebar
         {folder}
         activeChatId={activeFolderChat?.id}
-        onchatselect={(c) => { activeFolderChat = c; }}
+        onchatselect={(c) => {
+          activeFolderChat = c;
+        }}
       />
     {/if}
   {/snippet}

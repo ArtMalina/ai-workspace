@@ -1,11 +1,7 @@
 import { defineRoutes, get, post, put, del } from "../dev/mock-api";
-import type {
-  ChatShort,
-  FolderShort,
-  ResourceShort,
-  ChatItem,
-  FolderItem,
-} from "../lib/entities/workspace/model/types";
+import type { ChatShort } from "../lib/entities/chat";
+import type { FolderShort, ResourceShort } from "../lib/entities/folder";
+import type { ChatItem, FolderItem } from "../lib/entities/workspace/model/types";
 
 // ─── Static mock data ─────────────────────────────────────────────────────────
 // Keep in sync with store.svelte.ts seed data (but plain objects — no $state).

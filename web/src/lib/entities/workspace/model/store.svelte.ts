@@ -1,13 +1,12 @@
 import type { LlmBrandTypes } from "$lib/entities/llm";
 import type {
-  ChatItem,
+  ChatSession,
   ChatMessage,
-  ChatShort,
-  FolderItem,
-  FolderShort,
   MessageBlock,
-  ResourceShort,
-} from "./types";
+  ChatShort,
+} from "$lib/entities/chat/@x/workspace";
+import type { FolderShort, ResourceShort } from "$lib/entities/folder/@x/workspace";
+import type { ChatItem, FolderItem } from "./types";
 
 // ─── Mock data helpers ────────────────────────────────────────────────────────
 
@@ -301,7 +300,7 @@ TOTAL                      100% → $2.4M`,
   ),
 ];
 
-// ─── State ───────────────────────────────────────────────────────────────────
+// ─── State ────────────────────────────────────────────────────────────────────
 
 const ideasId = crypto.randomUUID();
 const alphaId = crypto.randomUUID();
@@ -503,7 +502,6 @@ export function moveChatToFolder(chatId: string, folderId: string) {
       model: chat.model,
       messages: chat.messages,
     });
-    // Keep llmBrands in sync
     if (chat.model && !folder.llmBrands.includes(chat.model)) {
       folder.llmBrands.push(chat.model);
     }
@@ -535,58 +533,39 @@ export function deleteFolderChat(chatId: string, folderId: string) {
   if (idx !== -1) folder.chats.splice(idx, 1);
 }
 
-// ─── Read actions ─────────────────────────────────────────────────────────────
+// ─── Read helpers ─────────────────────────────────────────────────────────────
 
 /**
  * Returns the full chat object by ID.
  * Searches canvas chats first, then all folder chats.
  */
-export function getChatById(id: string): ChatItem | (typeof folders)[0]["chats"][0] | undefined {
+export function getChatById(id: string): ChatSession | undefined {
   return chats.find((c) => c.id === id) ?? folders.flatMap((f) => f.chats).find((c) => c.id === id);
 }
 
 /**
- * Returns the full folder by ID together with its chats as short models.
- * Returns `undefined` if the folder is not found.
+ * Returns the folder by ID together with its chats as short models.
  */
 export function getFolderById(id: string): { folder: FolderItem; chats: ChatShort[] } | undefined {
   const folder = folders.find((f) => f.id === id);
   if (!folder) return undefined;
   return {
     folder,
-    chats: folder.chats.map((c) => ({
-      id: c.id,
-      name: c.title,
-      model: c.model,
-    })),
+    chats: folder.chats.map((c) => ({ id: c.id, name: c.title, model: c.model })),
   };
 }
 
-/**
- * Returns short models for all canvas chats (workspace list view).
- */
+/** Returns short models for all canvas chats (workspace list view) */
 export function getWorkspaceChats(): ChatShort[] {
-  return chats.map((c) => ({
-    id: c.id,
-    name: c.title,
-    description: c.subtitle,
-    model: c.model,
-  }));
+  return chats.map((c) => ({ id: c.id, name: c.title, description: c.subtitle, model: c.model }));
 }
 
-/**
- * Returns short models for all folders on the workspace.
- * Each folder includes its short chat list and resource list.
- */
+/** Returns short models for all folders on the workspace */
 export function getWorkspaceFolders(): FolderShort[] {
   return folders.map((f) => ({
     id: f.id,
     name: f.title,
-    chats: f.chats.map((c) => ({
-      id: c.id,
-      name: c.title,
-      model: c.model,
-    })),
+    chats: f.chats.map((c) => ({ id: c.id, name: c.title, model: c.model })),
     resources: f.resources as ResourceShort[],
   }));
 }

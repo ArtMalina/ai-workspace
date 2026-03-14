@@ -11,18 +11,14 @@
     ChevronsLeft,
   } from "@lucide/svelte";
   import { LlmIcon } from "$lib/shared/ui";
-  import {
-    type FolderItem,
-    type FolderChat,
-    removeChatFromFolder,
-    deleteFolderChat,
-  } from "$lib/entities/workspace";
+  import { type FolderItem, removeChatFromFolder, deleteFolderChat } from "$lib/entities/workspace";
+  import type { ChatSession } from "$lib/entities/chat";
   import { FolderTitle } from "$lib/features/folder";
 
   interface Props {
     folder: FolderItem;
     activeChatId?: string;
-    onchatselect?: (chat: FolderChat) => void;
+    onchatselect?: (chat: ChatSession) => void;
   }
 
   const { folder, activeChatId, onchatselect }: Props = $props();
@@ -386,10 +382,6 @@
     height: 0.8125rem;
     flex-shrink: 0;
     color: var(--text-subtle);
-  }
-
-  :global([data-theme="dark"]) .fs__mini-res-icon {
-    color: var(--color-neutral-500);
   }
 
   .fs__mini-res-count {
