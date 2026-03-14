@@ -347,12 +347,15 @@
   .workspace__item {
     position: absolute;
     cursor: grab;
+    transition: transform 120ms var(--ease-default);
   }
 
   .workspace__item--dragging {
     cursor: grabbing;
     z-index: 10;
-    opacity: 0.85;
+    opacity: 0.92;
+    transform: scale(1.04);
+    filter: drop-shadow(0 10px 24px rgb(0 0 0 / 0.18));
   }
 
   /* Flyout: smooth spring when repelled from the quick card */
