@@ -42,4 +42,31 @@ export interface FolderItem {
   x: number;
   y: number;
   chats: FolderChat[];
+  resources: ResourceShort[];
+}
+
+// ─── Short (summary) models ───────────────────────────────────────────────────
+
+/** Lightweight resource reference used in lists and short folder models */
+export interface ResourceShort {
+  id: string;
+  name: string;
+  type: "file" | "collection";
+}
+
+/** Lightweight chat summary — used in workspace lists and folder contents */
+export interface ChatShort {
+  id: string;
+  name: string;
+  description?: string;
+  model?: LlmBrandTypes;
+}
+
+/** Lightweight folder summary — used in workspace lists */
+export interface FolderShort {
+  id: string;
+  name: string;
+  description?: string;
+  chats: ChatShort[];
+  resources: ResourceShort[];
 }

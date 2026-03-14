@@ -1,5 +1,13 @@
 import type { LlmBrandTypes } from "$lib/entities/llm";
-import type { ChatItem, ChatMessage, FolderItem, MessageBlock } from "./types";
+import type {
+  ChatItem,
+  ChatMessage,
+  ChatShort,
+  FolderItem,
+  FolderShort,
+  MessageBlock,
+  ResourceShort,
+} from "./types";
 
 // ─── Mock data helpers ────────────────────────────────────────────────────────
 
@@ -317,6 +325,11 @@ export let folders = $state<FolderItem[]>([
       },
       { id: crypto.randomUUID(), title: "Blog post outline", model: "openai", messages: MSGS_BLOG },
     ],
+    resources: [
+      { id: crypto.randomUUID(), name: "Competitive analysis.pdf", type: "file" },
+      { id: crypto.randomUUID(), name: "User interviews.docx", type: "file" },
+      { id: crypto.randomUUID(), name: "Market research", type: "collection" },
+    ],
   },
   {
     id: alphaId,
@@ -330,6 +343,13 @@ export let folders = $state<FolderItem[]>([
       { id: crypto.randomUUID(), title: "API design review", model: "claude", messages: MSGS_API },
       { id: crypto.randomUUID(), title: "Database schema", model: "openai", messages: MSGS_DB },
       { id: crypto.randomUUID(), title: "Sprint planning", model: "qwen", messages: MSGS_SPRINT },
+    ],
+    resources: [
+      { id: crypto.randomUUID(), name: "Architecture overview.pdf", type: "file" },
+      { id: crypto.randomUUID(), name: "API spec v2.yaml", type: "file" },
+      { id: crypto.randomUUID(), name: "ERD diagram.png", type: "file" },
+      { id: crypto.randomUUID(), name: "Project docs", type: "collection" },
+      { id: crypto.randomUUID(), name: "Design system", type: "collection" },
     ],
   },
   {
@@ -348,6 +368,14 @@ export let folders = $state<FolderItem[]>([
         model: "mistral",
         messages: MSGS_BUDGET,
       },
+    ],
+    resources: [
+      { id: crypto.randomUUID(), name: "Q4 report.xlsx", type: "file" },
+      { id: crypto.randomUUID(), name: "Annual budget.xlsx", type: "file" },
+      { id: crypto.randomUUID(), name: "Forecasts 2025.pdf", type: "file" },
+      { id: crypto.randomUUID(), name: "Historical data", type: "collection" },
+      { id: crypto.randomUUID(), name: "KPI dashboard", type: "collection" },
+      { id: crypto.randomUUID(), name: "Audit trail", type: "collection" },
     ],
   },
 ]);
@@ -407,6 +435,7 @@ export function createFolder() {
     x: 48 + Math.random() * 300,
     y: 48 + Math.random() * 200,
     chats: [],
+    resources: [],
   });
 }
 
@@ -504,4 +533,60 @@ export function deleteFolderChat(chatId: string, folderId: string) {
   if (!folder) return;
   const idx = folder.chats.findIndex((c) => c.id === chatId);
   if (idx !== -1) folder.chats.splice(idx, 1);
+}
+
+// ─── Read actions ─────────────────────────────────────────────────────────────
+
+/**
+ * Returns the full chat object by ID.
+ * Searches canvas chats first, then all folder chats.
+ */
+export function getChatById(id: string): ChatItem | (typeof folders)[0]["chats"][0] | undefined {
+  return chats.find((c) => c.id === id) ?? folders.flatMap((f) => f.chats).find((c) => c.id === id);
+}
+
+/**
+ * Returns the full folder by ID together with its chats as short models.
+ * Returns `undefined` if the folder is not found.
+ */
+export function getFolderById(id: string): { folder: FolderItem; chats: ChatShort[] } | undefined {
+  const folder = folders.find((f) => f.id === id);
+  if (!folder) return undefined;
+  return {
+    folder,
+    chats: folder.chats.map((c) => ({
+      id: c.id,
+      name: c.title,
+      model: c.model,
+    })),
+  };
+}
+
+/**
+ * Returns short models for all canvas chats (workspace list view).
+ */
+export function getWorkspaceChats(): ChatShort[] {
+  return chats.map((c) => ({
+    id: c.id,
+    name: c.title,
+    description: c.subtitle,
+    model: c.model,
+  }));
+}
+
+/**
+ * Returns short models for all folders on the workspace.
+ * Each folder includes its short chat list and resource list.
+ */
+export function getWorkspaceFolders(): FolderShort[] {
+  return folders.map((f) => ({
+    id: f.id,
+    name: f.title,
+    chats: f.chats.map((c) => ({
+      id: c.id,
+      name: c.title,
+      model: c.model,
+    })),
+    resources: f.resources as ResourceShort[],
+  }));
 }
