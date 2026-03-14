@@ -1,5 +1,5 @@
 import { defineRoutes, get, post, put, del } from "../dev/mock-api";
-import type { ChatMessage, MessageBlock, ChatShort } from "../lib/entities/chat";
+import type { ChatMessage, MessageBlock, ChatSession, ChatShort } from "../lib/entities/chat";
 import type { FolderShort, ResourceShort } from "../lib/entities/folder";
 import type { ChatItem, FolderItem } from "../lib/entities/workspace";
 
@@ -411,6 +411,25 @@ const FOLDER_SHORTS: FolderShort[] = SEED_FOLDERS.map((f) => ({
 
 const CHAT_SHORTS: ChatShort[] = SEED_CHATS;
 
+// ─── Chat ID → messages map ───────────────────────────────────────────────────
+
+const CHAT_MESSAGES: Record<string, ChatMessage[]> = {
+  // Canvas chats
+  "chat-email":    MSGS_EMAIL,
+  "chat-review":   MSGS_CODE_REVIEW,
+  "chat-translate": MSGS_TRANSLATE,
+  // folder-ideas
+  "chat-roadmap":  MSGS_ROADMAP,
+  "chat-blog":     MSGS_BLOG,
+  // folder-alpha
+  "chat-api":      MSGS_API,
+  "chat-db":       MSGS_DB,
+  "chat-sprint":   MSGS_SPRINT,
+  // folder-finance
+  "chat-q4":       MSGS_Q4,
+  "chat-budget":   MSGS_BUDGET,
+};
+
 // ─── Route handlers ───────────────────────────────────────────────────────────
 
 export const workspaceRoutes = defineRoutes([
@@ -443,15 +462,24 @@ export const workspaceRoutes = defineRoutes([
   // ── Chat by ID — full session with messages ───────────
   // Searches canvas chats first, then all folder chats
   get("/chats/:id", ({ params }) => {
-    const canvas = SEED_CHATS.find((c) => c.id === params.id);
-    if (canvas) return { data: canvas };
+    const id = params.id;
 
-    for (const folder of SEED_FOLDERS) {
-      const fc = folder.chats.find((c) => c.id === params.id);
-      if (fc) return { data: fc };
-    }
+    // Find the short record (canvas or folder chat)
+    const short: ChatShort | undefined =
+      SEED_CHATS.find((c) => c.id === id) ??
+      SEED_FOLDERS.flatMap((f) => f.chats).find((c) => c.id === id);
 
-    return null; // → 404
+    if (!short) return null; // → 404
+
+    const session: ChatSession = {
+      id: short.id,
+      title: short.title,
+      subtitle: short.subtitle,
+      model: short.model,
+      messages: CHAT_MESSAGES[id] ?? [],
+    };
+
+    return { data: session };
   }),
 
   // ── Chat: rename / update ─────────────────────────────

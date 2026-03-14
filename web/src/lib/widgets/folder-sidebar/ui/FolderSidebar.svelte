@@ -16,12 +16,13 @@
   import { FolderTitle } from "$lib/features/folder";
 
   interface Props {
-    folder: FolderItem;
+    folder?: FolderItem;
+    loading?: boolean;
     activeChatId?: string;
     onchatselect?: (chat: ChatShort) => void;
   }
 
-  const { folder, activeChatId, onchatselect }: Props = $props();
+  const { folder, loading = false, activeChatId, onchatselect }: Props = $props();
 
   const BRAND_LABELS: Record<string, string> = {
     openai: "ChatGPT",
@@ -61,12 +62,12 @@
   }
 
   function handleRemove(chatId: string) {
-    removeChatFromFolder(chatId, folder.id);
+    removeChatFromFolder(chatId, folder!.id);
     closeMenu();
   }
 
   function handleDelete(chatId: string) {
-    deleteFolderChat(chatId, folder.id);
+    deleteFolderChat(chatId, folder!.id);
     closeMenu();
   }
 </script>
@@ -74,157 +75,194 @@
 <svelte:window onpointerdown={onWindowPointerDown} />
 
 <div class="fs" class:fs--collapsed={collapsed}>
-  <!-- ── Header ──────────────────────────────────────────── -->
-  <div class="fs__header">
-    {#if !collapsed}
-      <div class="fs__header-icon">
-        <FolderOpen class="fs__folder-svg" />
-      </div>
-    {/if}
-
-    <div class="fs__header-meta">
-      <FolderTitle folderId={folder.id} title={folder.title} />
-    </div>
-
-    <button
-      class="fs__collapse-btn"
-      onclick={() => (collapsed = !collapsed)}
-      aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-      title={collapsed ? "Expand" : "Collapse"}
-      type="button"
-    >
-      {#if !collapsed}
-        <ChevronsLeft class="fs__collapse-icon" />
-      {:else}
-        <ChevronsRight class="fs__collapse-icon" />
-      {/if}
-    </button>
-  </div>
-
-  {#if collapsed}
-    <!-- ── Collapsed: resources + chat list ───────────────── -->
-
-    <!-- Resource rows -->
-    <div class="fs__mini-res">
-      <div class="fs__mini-res-row" title="Files">
-        <FileText class="fs__mini-res-icon" />
-        <span class="fs__mini-res-count">{folder.filesCount}</span>
-        <span class="fs__mini-res-label">Files</span>
-      </div>
-      <div class="fs__mini-res-row" title="Collections">
-        <Layers class="fs__mini-res-icon" />
-        <span class="fs__mini-res-count">{folder.collectionsCount}</span>
-        <span class="fs__mini-res-label">Collections</span>
+  {#if loading}
+    <!-- ── Skeleton ─────────────────────────────────────────── -->
+    <div class="fs__header">
+      <div class="fs__header-icon fs__sk fs__sk--icon"></div>
+      <div class="fs__header-meta">
+        <div class="fs__sk fs__sk--title"></div>
       </div>
     </div>
 
-    <div class="fs__mini-divider"></div>
-
-    <!-- Chats label -->
-    <div class="fs__mini-chats-header">
-      <span class="fs__mini-chats-label">Chats</span>
-      <span class="fs__mini-chats-count">{folder.chats.length}</span>
-    </div>
-
-    <!-- Chat list -->
-    <ul class="fs__icon-list">
-      {#each folder.chats as chat (chat.id)}
-        <li
-          class="fs__icon-item"
-          class:fs__icon-item--active={activeChatId === chat.id}
-          title={chat.title}
-        >
-          <button
-            class="fs__icon-btn"
-            type="button"
-            onclick={() => onchatselect?.(chat)}
-            aria-label={chat.title}
-          >
-            <div class="fs__icon-model">
-              <LlmIcon brand={chat.model ?? "openai"} size={13} />
-            </div>
-            <span class="fs__icon-title">{chat.title}</span>
-          </button>
-        </li>
-      {/each}
-    </ul>
-  {:else}
-    <!-- ── Models ──────────────────────────────────────────── -->
     <section class="fs__section">
-      <h4 class="fs__section-label">Models</h4>
-      {#if folder.llmBrands.length > 0}
-        <div class="fs__brands">
-          {#each folder.llmBrands as brand (brand)}
-            <div class="fs__brand-chip">
-              <LlmIcon {brand} size={13} class="fs__brand-svg" />
-              <span>{BRAND_LABELS[brand] ?? brand}</span>
-            </div>
-          {/each}
-        </div>
-      {:else}
-        <p class="fs__muted">No models assigned</p>
-      {/if}
+      <div class="fs__sk fs__sk--label"></div>
+      <div class="fs__sk-chips">
+        <div class="fs__sk fs__sk--chip"></div>
+        <div class="fs__sk fs__sk--chip"></div>
+      </div>
     </section>
 
-    <!-- ── Resources ───────────────────────────────────────── -->
     <section class="fs__section">
-      <h4 class="fs__section-label">Resources</h4>
+      <div class="fs__sk fs__sk--label"></div>
       <div class="fs__resources">
-        <div class="fs__res-card">
-          <FileText class="fs__res-icon" />
-          <span class="fs__res-val">{folder.filesCount}</span>
-          <span class="fs__res-label">Files</span>
-        </div>
-        <div class="fs__res-card">
-          <Layers class="fs__res-icon" />
-          <span class="fs__res-val">{folder.collectionsCount}</span>
-          <span class="fs__res-label">Collections</span>
-        </div>
+        <div class="fs__sk fs__sk--res-card"></div>
+        <div class="fs__sk fs__sk--res-card"></div>
       </div>
     </section>
 
-    <!-- ── Chats ────────────────────────────────────────────── -->
     <section class="fs__section fs__section--grow">
       <div class="fs__chats-header">
-        <h4 class="fs__section-label">Chats · {folder.chats.length}</h4>
-        <button class="fs__chats-add" aria-label="New chat" type="button">
-          <Plus class="fs__chats-add-icon" />
-        </button>
+        <div class="fs__sk fs__sk--label"></div>
+      </div>
+      <div class="fs__sk-rows">
+        <div class="fs__sk fs__sk--chat-row"></div>
+        <div class="fs__sk fs__sk--chat-row"></div>
+        <div class="fs__sk fs__sk--chat-row"></div>
+      </div>
+    </section>
+  {:else if folder}
+    <!-- ── Header ──────────────────────────────────────────── -->
+    <div class="fs__header">
+      {#if !collapsed}
+        <div class="fs__header-icon">
+          <FolderOpen class="fs__folder-svg" />
+        </div>
+      {/if}
+
+      <div class="fs__header-meta">
+        <FolderTitle folderId={folder.id} title={folder.title} />
       </div>
 
-      {#if folder.chats.length > 0}
-        <ul class="fs__chat-list">
-          {#each folder.chats as chat (chat.id)}
-            <li
-              class="fs__chat-item"
-              class:fs__chat-item--active={activeChatId === chat.id}
-              class:fs__chat-item--menu-open={openMenuId === chat.id}
-            >
-              <button class="fs__chat-row" type="button" onclick={() => onchatselect?.(chat)}>
-                <div class="fs__chat-model-icon">
-                  <LlmIcon brand={chat.model ?? "openai"} size={13} />
-                </div>
-                <span class="fs__chat-title">{chat.title}</span>
-              </button>
+      <button
+        class="fs__collapse-btn"
+        onclick={() => (collapsed = !collapsed)}
+        aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        title={collapsed ? "Expand" : "Collapse"}
+        type="button"
+      >
+        {#if !collapsed}
+          <ChevronsLeft class="fs__collapse-icon" />
+        {:else}
+          <ChevronsRight class="fs__collapse-icon" />
+        {/if}
+      </button>
+    </div>
 
-              <button
-                class="fs__chat-menu-btn"
-                type="button"
-                aria-label="Chat options"
-                aria-haspopup="menu"
-                aria-expanded={openMenuId === chat.id}
-                data-chat-menu
-                onclick={(e) => openMenu(e, chat.id)}
+    {#if collapsed}
+      <!-- ── Collapsed: resources + chat list ───────────────── -->
+
+      <!-- Resource rows -->
+      <div class="fs__mini-res">
+        <div class="fs__mini-res-row" title="Files">
+          <FileText class="fs__mini-res-icon" />
+          <span class="fs__mini-res-count">{folder.filesCount}</span>
+          <span class="fs__mini-res-label">Files</span>
+        </div>
+        <div class="fs__mini-res-row" title="Collections">
+          <Layers class="fs__mini-res-icon" />
+          <span class="fs__mini-res-count">{folder.collectionsCount}</span>
+          <span class="fs__mini-res-label">Collections</span>
+        </div>
+      </div>
+
+      <div class="fs__mini-divider"></div>
+
+      <!-- Chats label -->
+      <div class="fs__mini-chats-header">
+        <span class="fs__mini-chats-label">Chats</span>
+        <span class="fs__mini-chats-count">{folder.chats.length}</span>
+      </div>
+
+      <!-- Chat list -->
+      <ul class="fs__icon-list">
+        {#each folder.chats as chat (chat.id)}
+          <li
+            class="fs__icon-item"
+            class:fs__icon-item--active={activeChatId === chat.id}
+            title={chat.title}
+          >
+            <button
+              class="fs__icon-btn"
+              type="button"
+              onclick={() => onchatselect?.(chat)}
+              aria-label={chat.title}
+            >
+              <div class="fs__icon-model">
+                <LlmIcon brand={chat.model ?? "openai"} size={13} />
+              </div>
+              <span class="fs__icon-title">{chat.title}</span>
+            </button>
+          </li>
+        {/each}
+      </ul>
+    {:else}
+      <!-- ── Models ──────────────────────────────────────────── -->
+      <section class="fs__section">
+        <h4 class="fs__section-label">Models</h4>
+        {#if folder.llmBrands.length > 0}
+          <div class="fs__brands">
+            {#each folder.llmBrands as brand (brand)}
+              <div class="fs__brand-chip">
+                <LlmIcon {brand} size={13} class="fs__brand-svg" />
+                <span>{BRAND_LABELS[brand] ?? brand}</span>
+              </div>
+            {/each}
+          </div>
+        {:else}
+          <p class="fs__muted">No models assigned</p>
+        {/if}
+      </section>
+
+      <!-- ── Resources ───────────────────────────────────────── -->
+      <section class="fs__section">
+        <h4 class="fs__section-label">Resources</h4>
+        <div class="fs__resources">
+          <div class="fs__res-card">
+            <FileText class="fs__res-icon" />
+            <span class="fs__res-val">{folder.filesCount}</span>
+            <span class="fs__res-label">Files</span>
+          </div>
+          <div class="fs__res-card">
+            <Layers class="fs__res-icon" />
+            <span class="fs__res-val">{folder.collectionsCount}</span>
+            <span class="fs__res-label">Collections</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Chats ────────────────────────────────────────────── -->
+      <section class="fs__section fs__section--grow">
+        <div class="fs__chats-header">
+          <h4 class="fs__section-label">Chats · {folder.chats.length}</h4>
+          <button class="fs__chats-add" aria-label="New chat" type="button">
+            <Plus class="fs__chats-add-icon" />
+          </button>
+        </div>
+
+        {#if folder.chats.length > 0}
+          <ul class="fs__chat-list">
+            {#each folder.chats as chat (chat.id)}
+              <li
+                class="fs__chat-item"
+                class:fs__chat-item--active={activeChatId === chat.id}
+                class:fs__chat-item--menu-open={openMenuId === chat.id}
               >
-                <EllipsisVertical class="fs__chat-menu-icon" />
-              </button>
-            </li>
-          {/each}
-        </ul>
-      {:else}
-        <p class="fs__muted">No chats yet</p>
-      {/if}
-    </section>
+                <button class="fs__chat-row" type="button" onclick={() => onchatselect?.(chat)}>
+                  <div class="fs__chat-model-icon">
+                    <LlmIcon brand={chat.model ?? "openai"} size={13} />
+                  </div>
+                  <span class="fs__chat-title">{chat.title}</span>
+                </button>
+
+                <button
+                  class="fs__chat-menu-btn"
+                  type="button"
+                  aria-label="Chat options"
+                  aria-haspopup="menu"
+                  aria-expanded={openMenuId === chat.id}
+                  data-chat-menu
+                  onclick={(e) => openMenu(e, chat.id)}
+                >
+                  <EllipsisVertical class="fs__chat-menu-icon" />
+                </button>
+              </li>
+            {/each}
+          </ul>
+        {:else}
+          <p class="fs__muted">No chats yet</p>
+        {/if}
+      </section>
+    {/if}
   {/if}
 </div>
 
@@ -955,5 +993,83 @@
     width: 0.875rem;
     height: 0.875rem;
     flex-shrink: 0;
+  }
+
+  /* ── Skeleton ──────────────────────────────────────── */
+  @keyframes fs-shimmer {
+    from {
+      background-position: -200% 0;
+    }
+    to {
+      background-position: 200% 0;
+    }
+  }
+
+  .fs__sk {
+    border-radius: var(--radius-md);
+    background: linear-gradient(
+      90deg,
+      var(--color-neutral-200) 25%,
+      var(--color-neutral-100) 50%,
+      var(--color-neutral-200) 75%
+    );
+    background-size: 200% 100%;
+    animation: fs-shimmer 1.4s ease-in-out infinite;
+  }
+
+  :global([data-theme="dark"]) .fs__sk {
+    background: linear-gradient(
+      90deg,
+      var(--color-neutral-700) 25%,
+      var(--color-neutral-600) 50%,
+      var(--color-neutral-700) 75%
+    );
+    background-size: 200% 100%;
+  }
+
+  .fs__sk--icon {
+    width: 2rem;
+    height: 2rem;
+    flex-shrink: 0;
+  }
+
+  .fs__sk--title {
+    height: 0.875rem;
+    width: 60%;
+    border-radius: var(--radius-sm);
+  }
+
+  .fs__sk--label {
+    height: 0.625rem;
+    width: 4rem;
+    margin-bottom: var(--spacing-2);
+    border-radius: var(--radius-sm);
+  }
+
+  .fs__sk-chips {
+    display: flex;
+    gap: var(--spacing-2);
+  }
+
+  .fs__sk--chip {
+    height: 1.5rem;
+    width: 5rem;
+    border-radius: var(--radius-full);
+  }
+
+  .fs__sk--res-card {
+    height: 4.5rem;
+    border-radius: var(--radius-lg);
+  }
+
+  .fs__sk-rows {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+  }
+
+  .fs__sk--chat-row {
+    height: 2rem;
+    border-radius: var(--radius-md);
   }
 </style>

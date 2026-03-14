@@ -4,6 +4,8 @@ import type { ChatSession } from "$lib/entities/chat/@x/workspace";
 import type { FolderShort } from "$lib/entities/folder/@x/workspace";
 import type { ChatItem, FolderItem } from "./types";
 import { fetchWorkspaceChats, fetchWorkspaceFolders } from "../api";
+import { fetchFolderShort } from "$lib/entities/folder";
+import { fetchChatSession } from "$lib/entities/chat";
 
 // ─── Writable stores ──────────────────────────────────────────────────────────
 
@@ -46,6 +48,31 @@ export async function fetchWorkspace(): Promise<void> {
       y: 48 + Math.floor(i / 3) * 220,
     })),
   );
+}
+
+/**
+ * Fetch a single folder by ID and update the folders store.
+ * If the folder isn't on the canvas yet (direct navigation), it is inserted.
+ * Returns the updated FolderItem.
+ */
+export async function fetchFolder(id: string): Promise<FolderItem | undefined> {
+  const folderShort = await fetchFolderShort(id);
+  applyFolderShort(folderShort);
+
+  let result: FolderItem | undefined;
+  folders.subscribe((items) => {
+    result = items.find((f) => f.id === id);
+  })();
+  return result;
+}
+
+/**
+ * Fetch a full chat session (with message history) by ID.
+ * Returns the session — the caller decides what to do with it (local state).
+ * Folder chats stay as ChatShort in the store; sessions are ephemeral per-view.
+ */
+export async function fetchChat(id: string): Promise<ChatSession> {
+  return fetchChatSession(id);
 }
 
 // ─── Store patch actions (apply fetched data) ─────────────────────────────────
