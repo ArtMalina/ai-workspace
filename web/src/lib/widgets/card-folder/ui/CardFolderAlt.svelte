@@ -15,6 +15,8 @@
     collectionsCount?: number;
     chatsCount?: number;
     href?: string;
+    /** Renders hover styles + pointer cursor on the div variant (no href) */
+    clickable?: boolean;
     /** Highlighted when a chat card is dragged over this folder */
     isDropTarget?: boolean;
     onEditingChange?: (editing: boolean) => void;
@@ -28,6 +30,7 @@
     collectionsCount,
     chatsCount,
     href,
+    clickable = false,
     isDropTarget = false,
     onEditingChange,
   }: Props = $props();
@@ -99,7 +102,7 @@
     {@render body()}
   </a>
 {:else}
-  <div class="cfa" class:cfa--drop-target={isDropTarget}>
+  <div class="cfa" class:cfa--drop-target={isDropTarget} class:cfa--clickable={clickable}>
     <div class="cfa__tab"></div>
     {@render body()}
     {#if isDropTarget}
@@ -297,20 +300,28 @@
     }
   }
 
-  /* ─── Hover (link only) ──────────────────────────────────── */
-  a.cfa:hover .cfa__tab {
-    background: var(--brand-subtle);
-    border-color: var(--brand-default);
+  /* ─── Hover (link or clickable div) ─────────────────────── */
+  a.cfa:hover .cfa__tab,
+  .cfa--clickable:hover .cfa__tab {
+    background: color-mix(in srgb, var(--brand-default) 7%, var(--brand-subtle));
+    border-color: color-mix(in srgb, var(--brand-default) 35%, var(--border-default));
   }
 
-  a.cfa:hover .cfa__body {
-    background: var(--brand-subtle);
-    border-color: var(--brand-default);
-    box-shadow: var(--shadow-md);
+  a.cfa:hover .cfa__body,
+  .cfa--clickable:hover .cfa__body {
+    background: var(--surface-elevated);
+    border-color: color-mix(in srgb, var(--brand-default) 30%, var(--border-default));
+    box-shadow: var(--shadow-sm);
   }
 
   a.cfa:hover .cfa__brand-badge,
-  a.cfa:hover .cfa__brand-extra {
-    border-color: var(--brand-subtle);
+  a.cfa:hover .cfa__brand-extra,
+  .cfa--clickable:hover .cfa__brand-badge,
+  .cfa--clickable:hover .cfa__brand-extra {
+    border-color: var(--surface-elevated);
+  }
+
+  .cfa--clickable {
+    cursor: pointer;
   }
 </style>

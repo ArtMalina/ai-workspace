@@ -121,8 +121,17 @@
           <h3 class="workspace__section-title">Folders</h3>
           <div class="workspace__section-items">
             {#each folders as folder (folder.id)}
-              <!-- wrapper carries data-folder-id so folderAtPoint() works -->
-              <div data-folder-id={folder.id}>
+              <!-- wrapper: data-folder-id for folderAtPoint(); click handled
+                   here (not via href) so editing-in-progress suppresses nav -->
+              <div
+                data-folder-id={folder.id}
+                onclick={() => {
+                  if (!editingFolderIds.has(folder.id)) {
+                    goto(`/workspace/folders/${folder.id}`);
+                  }
+                }}
+                role="none"
+              >
                 <CardFolderAlt
                   folderId={folder.id}
                   title={folder.title}
@@ -131,7 +140,11 @@
                   collectionsCount={folder.collectionsCount}
                   chatsCount={folder.chats.length}
                   isDropTarget={dropTargetId === folder.id}
-                  href="/workspace/folders/{folder.id}"
+                  clickable={true}
+                  onEditingChange={(v) => {
+                    if (v) editingFolderIds.add(folder.id);
+                    else editingFolderIds.delete(folder.id);
+                  }}
                 />
               </div>
             {/each}
@@ -148,7 +161,9 @@
                 class="workspace__card-wrap"
                 class:workspace__card-wrap--dragging={draggingId === chat.id}
                 onmousedown={(e) => onMouseDown(e, chat.id, "chat")}
-                onclick={() => { if (!didDrag) goto(`/workspace/chats/${chat.id}`); }}
+                onclick={() => {
+                  if (!didDrag) goto(`/workspace/chats/${chat.id}`);
+                }}
                 role="none"
               >
                 <CardChat
@@ -190,6 +205,7 @@
           collectionsCount={folder.collectionsCount}
           chatsCount={folder.chats.length}
           isDropTarget={dropTargetId === folder.id}
+          clickable={true}
           onEditingChange={(v) => {
             if (v) editingFolderIds.add(folder.id);
             else editingFolderIds.delete(folder.id);
