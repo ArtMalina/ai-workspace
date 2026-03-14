@@ -6,6 +6,7 @@
   import { MessageInput } from "$lib/features/chat";
   import { LlmBrandIcon } from "$lib/features/llm-brand-icon";
   import { PanelExpandButton, panelExpandState } from "$lib/features/panel-expand";
+  import { ChatSettingsMenu } from "$lib/widgets/chat-settings-menu";
   import { goto } from "$app/navigation";
   import { fly } from "svelte/transition";
 
@@ -156,6 +157,7 @@
     </div>
 
     <div class="cp__header-right">
+      <ChatSettingsMenu />
       <PanelExpandButton />
       <CloseButton onclick={close} />
     </div>

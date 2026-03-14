@@ -1,6 +1,6 @@
 <script lang="ts">
   import { page } from "$app/stores";
-  import { ChatPanel, FolderSidebar, MessageThreadAlt } from "$lib/widgets";
+  import { ChatPanel, FolderSidebar, MessageThread, MessageThreadAlt, chatViewState } from "$lib/widgets";
   import { folders, renameFolder, type FolderChat } from "$lib/entities/workspace";
   import type { LlmBrandTypes } from "$lib/entities/llm";
 
@@ -29,7 +29,11 @@
   onsend={() => {}}
 >
   {#if folder}
-    <MessageThreadAlt messages={activeFolderChat?.messages} model={activeModel} />
+    {#if chatViewState.mode === "alt"}
+      <MessageThreadAlt messages={activeFolderChat?.messages} model={activeModel} />
+    {:else}
+      <MessageThread messages={activeFolderChat?.messages} model={activeModel} />
+    {/if}
   {:else}
     <p class="fp__not-found">Folder not found</p>
   {/if}
