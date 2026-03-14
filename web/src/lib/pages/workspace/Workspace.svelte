@@ -4,7 +4,9 @@
   import { CreateFolder } from "$lib/features/folder";
   import { CreateChat, MessageInput } from "$lib/features/chat";
   import { goto } from "$app/navigation";
+  import { tick } from "svelte";
   import { Group, Ungroup } from "@lucide/svelte";
+  import { createQuickDropZone, type QuickDropZone } from "./models/quickDropZone";
   import {
     folders,
     chats,
@@ -39,8 +41,16 @@
   let grabOffset = { x: 0, y: 0 };
   // Size of the currently dragged item — used to clamp within workspace bounds
   let draggedItemSize = { w: 0, h: 0 };
+  // DOM reference to the dragged .workspace__item — needed for flyout compute
+  let draggedItemEl: HTMLElement | null = null;
   // Reference to workspace root element for bounds clamping
   let workspaceEl: HTMLElement;
+  // Reference to the quick MessageInput card — used as the drop zone
+  let quickEl: HTMLElement;
+  // Active IntersectionObserver zone (canvas mode only)
+  let zone: QuickDropZone | null = null;
+  // id of the item currently animating the flyout (enables CSS transition)
+  let flyOutId = $state<string | null>(null);
 
   // ─── Folder title editing ────────────────────────────────
   // Tracks which folder cards are currently in title-edit mode.
@@ -68,10 +78,15 @@
     if (!grouped) {
       // Canvas: compute offset to keep item under the grab point
       const el = e.currentTarget as HTMLElement;
+      draggedItemEl = el;
       draggedItemSize = { w: el.offsetWidth, h: el.offsetHeight };
       const items = type === "folder" ? folders : chats;
       const item = items.find((i) => i.id === id)!;
       dragOffset = { x: e.clientX - item.x, y: e.clientY - item.y };
+      // Set up intersection observer for the quick card zone
+      zone?.destroy();
+      zone = createQuickDropZone(quickEl, workspaceEl);
+      zone.observe(el);
     } else {
       // Grouped: record where inside the card the user grabbed
       const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
@@ -105,10 +120,30 @@
     }
   }
 
-  function onMouseUp() {
+  async function onMouseUp() {
     if (draggingType === "chat" && draggingId && dropTargetId) {
       moveChatToFolder(draggingId, dropTargetId);
     }
+
+    // Canvas: check if item was dropped onto the quick card zone (>70% overlap)
+    if (!grouped && zone && zone.ratio > 0.7 && draggingId && draggedItemEl) {
+      const id = draggingId;
+      const type = draggingType!;
+      const target = zone.computeFlyout(draggedItemEl);
+
+      // Apply transition class first, then update position on next frame
+      flyOutId = id;
+      await tick();
+      if (type === "folder") moveFolder(id, target.x, target.y);
+      else moveChat(id, target.x, target.y);
+
+      setTimeout(() => {
+        flyOutId = null;
+      }, 500);
+    }
+
+    zone?.unobserve();
+    draggedItemEl = null;
     draggingId = null;
     draggingType = null;
     dropTargetId = null;
@@ -195,6 +230,7 @@
         class="workspace__item"
         class:workspace__item--dragging={draggingId === folder.id}
         class:workspace__item--drop-target={dropTargetId === folder.id}
+        class:workspace__item--flyout={flyOutId === folder.id}
         style:left="{folder.x}px"
         style:top="{folder.y}px"
         onmousedown={(e) => {
@@ -227,6 +263,7 @@
       <div
         class="workspace__item"
         class:workspace__item--dragging={draggingId === chat.id}
+        class:workspace__item--flyout={flyOutId === chat.id}
         style:left="{chat.x}px"
         style:top="{chat.y}px"
         onmousedown={(e) => onMouseDown(e, chat.id, "chat")}
@@ -246,7 +283,7 @@
   {/if}
 
   <!-- Quick-start floating card (always visible) -->
-  <div class="workspace__quick">
+  <div class="workspace__quick" bind:this={quickEl}>
     <p class="workspace__quick-label">Start a new chat</p>
     <MessageInput
       variant="card"
@@ -316,6 +353,15 @@
     cursor: grabbing;
     z-index: 10;
     opacity: 0.85;
+  }
+
+  /* Flyout: smooth spring when repelled from the quick card */
+  .workspace__item--flyout {
+    transition:
+      left 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+      top 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+    z-index: 5;
   }
 
   /* ── Grouped mode ──────────────────────────────────── */
