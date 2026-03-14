@@ -97,12 +97,22 @@
 {/snippet}
 
 {#if href}
-  <a class="cfa" class:cfa--drop-target={isDropTarget} {href}>
+  <a class="cfa" class:cfa--drop-target={isDropTarget} data-folder-id={folderId} {href}>
     <div class="cfa__tab"></div>
     {@render body()}
+    {#if isDropTarget}
+      <div class="cfa__drop-overlay" aria-hidden="true">
+        <span class="cfa__drop-label">Drop to add</span>
+      </div>
+    {/if}
   </a>
 {:else}
-  <div class="cfa" class:cfa--drop-target={isDropTarget} class:cfa--clickable={clickable}>
+  <div
+    class="cfa"
+    class:cfa--drop-target={isDropTarget}
+    class:cfa--clickable={clickable}
+    data-folder-id={folderId}
+  >
     <div class="cfa__tab"></div>
     {@render body()}
     {#if isDropTarget}
@@ -261,7 +271,7 @@
   }
 
   .cfa--drop-target .cfa__body {
-    border-color: var(--brand-default);
+    border-color: var(--brand-default) !important;
     background: color-mix(in srgb, var(--brand-default) 8%, var(--surface-card));
     box-shadow:
       0 0 0 3px color-mix(in srgb, var(--brand-default) 20%, transparent),

@@ -121,10 +121,9 @@
           <h3 class="workspace__section-title">Folders</h3>
           <div class="workspace__section-items">
             {#each folders as folder (folder.id)}
-              <!-- wrapper: data-folder-id for folderAtPoint(); click handled
-                   here (not via href) so editing-in-progress suppresses nav -->
+              <!-- click handled here (not via href) so editing suppresses nav;
+                   data-folder-id lives on CardFolderAlt's root .cfa element -->
               <div
-                data-folder-id={folder.id}
                 onclick={() => {
                   if (!editingFolderIds.has(folder.id)) {
                     goto(`/workspace/folders/${folder.id}`);
@@ -185,7 +184,6 @@
         class="workspace__item"
         class:workspace__item--dragging={draggingId === folder.id}
         class:workspace__item--drop-target={dropTargetId === folder.id}
-        data-folder-id={folder.id}
         style:left="{folder.x}px"
         style:top="{folder.y}px"
         onmousedown={(e) => {
