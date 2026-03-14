@@ -1,5 +1,5 @@
 import type { LlmBrandTypes } from "$lib/entities/llm";
-import type { ChatSession } from "$lib/entities/chat/@x/workspace";
+import type { ChatSession, ChatShort } from "$lib/entities/chat/@x/workspace";
 import type { ResourceShort } from "$lib/entities/folder/@x/workspace";
 
 // ─── Canvas models ────────────────────────────────────────────────────────────
@@ -8,9 +8,8 @@ import type { ResourceShort } from "$lib/entities/folder/@x/workspace";
 // concern — not part of the core chat or folder entity.
 
 /** Chat item positioned on the workspace canvas */
-export interface ChatItem extends ChatSession {
+export interface ChatItem extends ChatShort {
   /** Short description shown on the card */
-  subtitle?: string;
   x: number;
   y: number;
 }
@@ -25,6 +24,6 @@ export interface FolderItem {
   x: number;
   y: number;
   /** Full chat objects stored inside the folder */
-  chats: ChatSession[];
+  chats: ChatShort[];
   resources: ResourceShort[];
 }

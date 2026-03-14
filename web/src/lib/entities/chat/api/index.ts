@@ -1,1 +1,2 @@
-export { fetchWorkspaceChats, fetchChatById } from "./chatApi";
+export * from "./chatApi";
+

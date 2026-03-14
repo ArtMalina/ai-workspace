@@ -4,8 +4,9 @@
   import { CreateFolder } from "$lib/features/folder";
   import { CreateChat, MessageInput } from "$lib/features/chat";
   import { goto } from "$app/navigation";
-  import { tick } from "svelte";
+  import { onMount, tick } from "svelte";
   import { Group, Ungroup } from "@lucide/svelte";
+  import { Loader2 } from "@lucide/svelte";
   import { createQuickDropZone, type QuickDropZone } from "./models/quickDropZone";
   import {
     folders,
@@ -17,14 +18,27 @@
     createChat,
     createChatWithMessage,
     moveChatToFolder,
+    fetchWorkspace,
   } from "$lib/entities/workspace";
+
+  // ─── Data loading ────────────────────────────────────────
+  let loading = $state(false);
+
+  onMount(async () => {
+    loading = true;
+    try {
+      await fetchWorkspace();
+    } finally {
+      loading = false;
+    }
+  });
 
   let quickModel = $state<LlmBrandTypes | undefined>(undefined);
   let grouped = $state(false);
 
   function handleQuickSend(message: string) {
-    const id = createChatWithMessage(message, quickModel);
-    goto(`/workspace/chats/${id}`);
+    // const id = createChatWithMessage(message, quickModel);
+    // goto(`/workspace/chats/${id}`);
   }
 
   // ─── Drag & Drop ────────────────────────────────────────
@@ -80,7 +94,7 @@
       const el = e.currentTarget as HTMLElement;
       draggedItemEl = el;
       draggedItemSize = { w: el.offsetWidth, h: el.offsetHeight };
-      const items = type === "folder" ? folders : chats;
+      const items = type === "folder" ? $folders : $chats;
       const item = items.find((i) => i.id === id)!;
       dragOffset = { x: e.clientX - item.x, y: e.clientY - item.y };
       // Set up intersection observer for the quick card zone
@@ -159,14 +173,19 @@
   onmouseleave={onMouseUp}
   role="none"
 >
-  {#if grouped}
+  {#if loading}
+    <!-- ── Loading overlay ──────────────────────────────── -->
+    <div class="workspace__loading" aria-label="Loading workspace">
+      <Loader2 size={22} class="workspace__loading-icon" />
+    </div>
+  {:else if grouped}
     <!-- ── Grouped layout ───────────────────────────────── -->
     <div class="workspace__sections">
-      {#if folders.length > 0}
+      {#if $folders.length > 0}
         <section class="workspace__section">
           <h3 class="workspace__section-title">Folders</h3>
           <div class="workspace__section-items">
-            {#each folders as folder (folder.id)}
+            {#each $folders as folder (folder.id)}
               <!-- click handled here (not via href) so editing suppresses nav;
                    data-folder-id lives on CardFolderAlt's root .cfa element -->
               <div
@@ -197,11 +216,11 @@
         </section>
       {/if}
 
-      {#if chats.length > 0}
+      {#if $chats.length > 0}
         <section class="workspace__section">
           <h3 class="workspace__section-title">Chats</h3>
           <div class="workspace__section-items">
-            {#each chats as chat (chat.id)}
+            {#each $chats as chat (chat.id)}
               <div
                 class="workspace__card-wrap"
                 class:workspace__card-wrap--dragging={draggingId === chat.id}
@@ -225,7 +244,7 @@
     </div>
   {:else}
     <!-- ── Canvas layout ────────────────────────────────── -->
-    {#each folders as folder (folder.id)}
+    {#each $folders as folder (folder.id)}
       <div
         class="workspace__item"
         class:workspace__item--dragging={draggingId === folder.id}
@@ -259,7 +278,7 @@
       </div>
     {/each}
 
-    {#each chats as chat (chat.id)}
+    {#each $chats as chat (chat.id)}
       <div
         class="workspace__item"
         class:workspace__item--dragging={draggingId === chat.id}
@@ -297,7 +316,7 @@
 
   <!-- Drag ghost — only in grouped mode, follows the cursor -->
   {#if grouped && draggingId && draggingType === "chat"}
-    {@const ghost = chats.find((c) => c.id === draggingId)}
+    {@const ghost = $chats.find((c) => c.id === draggingId)}
     {#if ghost}
       <div
         class="workspace__drag-ghost"
@@ -320,6 +339,7 @@
       type="button"
     >
       {#if grouped}
+
         <Ungroup size={15} />
       {:else}
         <Group size={15} />
@@ -507,5 +527,23 @@
     display: flex;
     gap: var(--spacing-2);
     align-items: center;
+  }
+
+  /* ── Loading overlay ────────────────────────────────── */
+  .workspace__loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+  }
+
+  :global(.workspace__loading-icon) {
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
   }
 </style>

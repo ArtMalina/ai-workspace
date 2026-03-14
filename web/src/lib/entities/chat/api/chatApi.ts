@@ -1,24 +1,23 @@
 import { api } from "$lib/shared/api";
 import type { RequestConfig } from "$lib/shared/api";
-import type { ChatShort } from "../model/types";
+import type { ChatShort, ChatSession } from "../model/types";
 
-type ChatListResponse = { data: ChatShort[] };
-type ChatResponse = { data: ChatShort };
+type Envelope<T> = { data: T };
 
 /**
  * Fetch all canvas chats (short models) for the workspace list view.
  * GET /api/workspace/chats
  */
 export async function fetchWorkspaceChats(config?: RequestConfig): Promise<ChatShort[]> {
-  const res = await api.get<ChatListResponse>("/workspace/chats", config);
+  const res = await api.get<Envelope<ChatShort[]>>("/workspace/chats", config);
   return res.data;
 }
 
 /**
- * Fetch a single chat by ID (searches canvas + folder chats server-side).
- * GET /api/workspace/chats/:id
+ * Fetch a full chat session (with message history) by ID.
+ * GET /api/chats/:id
  */
-export async function fetchChatById(id: string, config?: RequestConfig): Promise<ChatShort> {
-  const res = await api.get<ChatResponse>(`/workspace/chats/${id}`, config);
+export async function fetchChatSession(id: string, config?: RequestConfig): Promise<ChatSession> {
+  const res = await api.get<Envelope<ChatSession>>(`/chats/${id}`, config);
   return res.data;
 }

@@ -19,8 +19,8 @@ export interface ChatMessage {
 /** Lightweight chat summary — used in workspace lists and folder contents */
 export interface ChatShort {
   id: string;
-  name: string;
-  description?: string;
+  title: string;
+  subtitle?: string;
   model?: LlmBrandTypes;
 }
 
@@ -30,7 +30,7 @@ export interface ChatShort {
 export interface ChatSession {
   id: string;
   title: string;
+  subtitle?: string;
   model?: LlmBrandTypes;
   messages: ChatMessage[];
 }
-

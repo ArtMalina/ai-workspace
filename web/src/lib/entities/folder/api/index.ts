@@ -1,1 +1,1 @@
-export { fetchWorkspaceFolders, fetchFolderById } from "./folderApi";
+export * from "./folderApi";

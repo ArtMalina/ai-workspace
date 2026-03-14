@@ -12,13 +12,13 @@
   } from "@lucide/svelte";
   import { LlmIcon } from "$lib/shared/ui";
   import { type FolderItem, removeChatFromFolder, deleteFolderChat } from "$lib/entities/workspace";
-  import type { ChatSession } from "$lib/entities/chat";
+  import type { ChatShort } from "$lib/entities/chat";
   import { FolderTitle } from "$lib/features/folder";
 
   interface Props {
     folder: FolderItem;
     activeChatId?: string;
-    onchatselect?: (chat: ChatSession) => void;
+    onchatselect?: (chat: ChatShort) => void;
   }
 
   const { folder, activeChatId, onchatselect }: Props = $props();

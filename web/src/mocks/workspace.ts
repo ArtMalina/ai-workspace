@@ -333,8 +333,8 @@ export const SEED_FOLDERS: FolderItem[] = [
     x: 40,
     y: 48,
     chats: [
-      { id: "chat-roadmap", title: "Product roadmap Q2", model: "claude", messages: MSGS_ROADMAP },
-      { id: "chat-blog", title: "Blog post outline", model: "openai", messages: MSGS_BLOG },
+      { id: "chat-roadmap", title: "Product roadmap Q2", model: "claude" },
+      { id: "chat-blog", title: "Blog post outline", model: "openai" },
     ],
     resources: RES_IDEAS,
   },
@@ -347,9 +347,9 @@ export const SEED_FOLDERS: FolderItem[] = [
     x: 380,
     y: 48,
     chats: [
-      { id: "chat-api", title: "API design review", model: "claude", messages: MSGS_API },
-      { id: "chat-db", title: "Database schema", model: "openai", messages: MSGS_DB },
-      { id: "chat-sprint", title: "Sprint planning", model: "qwen", messages: MSGS_SPRINT },
+      { id: "chat-api", title: "API design review", model: "claude" },
+      { id: "chat-db", title: "Database schema", model: "openai" },
+      { id: "chat-sprint", title: "Sprint planning", model: "qwen" },
     ],
     resources: RES_ALPHA,
   },
@@ -362,8 +362,8 @@ export const SEED_FOLDERS: FolderItem[] = [
     x: 380,
     y: 248,
     chats: [
-      { id: "chat-q4", title: "Q4 summary", model: "llama", messages: MSGS_Q4 },
-      { id: "chat-budget", title: "Budget analysis", model: "mistral", messages: MSGS_BUDGET },
+      { id: "chat-q4", title: "Q4 summary", model: "llama" },
+      { id: "chat-budget", title: "Budget analysis", model: "mistral" },
     ],
     resources: RES_FINANCE,
   },
@@ -381,7 +381,6 @@ export const SEED_CHATS: ChatItem[] = [
     subtitle: "Write a professional follow-up to the client",
     x: 40,
     y: 248,
-    messages: MSGS_EMAIL,
   },
   {
     id: "chat-review",
@@ -390,7 +389,6 @@ export const SEED_CHATS: ChatItem[] = [
     subtitle: "Review pull request for the auth module",
     x: 720,
     y: 48,
-    messages: MSGS_CODE_REVIEW,
   },
   {
     id: "chat-translate",
@@ -399,7 +397,6 @@ export const SEED_CHATS: ChatItem[] = [
     subtitle: "Translate technical article to English",
     x: 720,
     y: 200,
-    messages: MSGS_TRANSLATE,
   },
 ];
 
@@ -408,36 +405,44 @@ export const SEED_CHATS: ChatItem[] = [
 const FOLDER_SHORTS: FolderShort[] = SEED_FOLDERS.map((f) => ({
   id: f.id,
   name: f.title,
-  chats: f.chats.map((c) => ({ id: c.id, name: c.title, model: c.model })),
+  chats: f.chats,
   resources: f.resources as ResourceShort[],
 }));
 
-const CHAT_SHORTS: ChatShort[] = SEED_CHATS.map((c) => ({
-  id: c.id,
-  name: c.title,
-  description: c.subtitle,
-  model: c.model,
-}));
+const CHAT_SHORTS: ChatShort[] = SEED_CHATS;
 
 // ─── Route handlers ───────────────────────────────────────────────────────────
 
 export const workspaceRoutes = defineRoutes([
-  // ── Folder list — short models ────────────────────────
+  // ── Workspace: folder list — short models ─────────────
   get("/workspace/folders", () => ({ data: FOLDER_SHORTS })),
 
-  // ── Folder by ID — full model ─────────────────────────
-  get("/workspace/folders/:id", ({ params }) => {
+  // ── Workspace: chat list — short models ───────────────
+  get("/workspace/chats", () => ({ data: CHAT_SHORTS })),
+
+  // ── Workspace: create chat ────────────────────────────
+  post("/workspace/chats", ({ body }) => {
+    const b = body as Partial<ChatShort>;
+    const created: ChatShort = {
+      id: `chat-${Date.now()}`,
+      title: b.title ?? "New Chat",
+      subtitle: b.subtitle,
+      model: b.model,
+    };
+    CHAT_SHORTS.push(created);
+    return { data: created };
+  }),
+
+  // ── Folder by ID — short model ────────────────────────
+  get("/folders/:id", ({ params }) => {
     const folder = FOLDER_SHORTS.find((f) => f.id === params.id);
     if (!folder) return null; // → 404
     return { data: folder };
   }),
 
-  // ── Chat list (canvas) — short models ─────────────────
-  get("/workspace/chats", () => ({ data: CHAT_SHORTS })),
-
   // ── Chat by ID — full session with messages ───────────
   // Searches canvas chats first, then all folder chats
-  get("/workspace/chats/:id", ({ params }) => {
+  get("/chats/:id", ({ params }) => {
     const canvas = SEED_CHATS.find((c) => c.id === params.id);
     if (canvas) return { data: canvas };
 
@@ -449,32 +454,19 @@ export const workspaceRoutes = defineRoutes([
     return null; // → 404
   }),
 
-  // ── Create chat (canvas) ──────────────────────────────
-  post("/workspace/chats", ({ body }) => {
-    const b = body as Partial<ChatShort>;
-    const created: ChatShort = {
-      id: `chat-${Date.now()}`,
-      name: b.name ?? "New Chat",
-      description: b.description,
-      model: b.model,
-    };
-    CHAT_SHORTS.push(created);
-    return { data: created };
-  }),
-
-  // ── Rename / update chat ──────────────────────────────
-  put("/workspace/chats/:id", ({ params, body }) => {
+  // ── Chat: rename / update ─────────────────────────────
+  put("/chats/:id", ({ params, body }) => {
     const chat = CHAT_SHORTS.find((c) => c.id === params.id);
     if (!chat) return null; // → 404
     const b = body as Partial<ChatShort>;
-    if (b.name !== undefined) chat.name = b.name;
-    if (b.description !== undefined) chat.description = b.description;
+    if (b.title !== undefined) chat.title = b.title;
+    if (b.subtitle !== undefined) chat.subtitle = b.subtitle;
     if (b.model !== undefined) chat.model = b.model;
     return { data: chat };
   }),
 
-  // ── Delete chat ───────────────────────────────────────
-  del("/workspace/chats/:id", ({ params }) => {
+  // ── Chat: delete ──────────────────────────────────────
+  del("/chats/:id", ({ params }) => {
     const idx = CHAT_SHORTS.findIndex((c) => c.id === params.id);
     if (idx === -1) return null; // → 404
     CHAT_SHORTS.splice(idx, 1);

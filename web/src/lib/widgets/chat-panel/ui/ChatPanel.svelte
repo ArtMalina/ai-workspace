@@ -482,7 +482,7 @@
     font-size: var(--text-xs);
     color: var(--text-subtle);
     line-height: 1.4;
-    opacity: 0;
+    opacity: 1;
     transition: opacity var(--duration-fast) var(--ease-default);
   }
 

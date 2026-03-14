@@ -2,17 +2,19 @@
   import { page } from "$app/stores";
   import { ChatPanel, MessageThread, MessageThreadAlt, chatViewState } from "$lib/widgets";
   import { chats, renameChat, updateChatSubtitle, updateChatModel } from "$lib/entities/workspace";
+  import type { ChatSession, fetchChatSession } from "$lib/entities/chat";
 
-  const chat = $derived(chats.find((c) => c.id === $page.params.id));
+  const chatShort = $derived($chats.find((c) => c.id === $page.params.id));
+  const chat = $state<ChatSession>();
 </script>
 
 <ChatPanel
-  title={chat?.title ?? "Chat"}
-  model={chat?.model}
-  subtitle={chat?.subtitle}
-  onrename={chat ? (t) => renameChat(chat.id, t) : undefined}
-  onsubtitle={chat ? (s) => updateChatSubtitle(chat.id, s) : undefined}
-  onmodelchange={chat ? (m) => updateChatModel(chat.id, m) : undefined}
+  title={chatShort?.title ?? "Chat"}
+  model={chatShort?.model}
+  subtitle={chatShort?.subtitle}
+  onrename={chatShort ? (t) => renameChat(chatShort.id, t) : undefined}
+  onsubtitle={chatShort ? (s) => updateChatSubtitle(chatShort.id, s) : undefined}
+  onmodelchange={chatShort ? (m) => updateChatModel(chatShort.id, m) : undefined}
 >
   {#if chat}
     {#if chatViewState.mode === "alt"}

@@ -11,7 +11,7 @@
   import type { ChatSession } from "$lib/entities/chat";
   import type { LlmBrandTypes } from "$lib/entities/llm";
 
-  const folder = $derived(folders.find((f) => f.id === $page.params.id));
+  const folder = $derived($folders.find((f) => f.id === $page.params.id));
 
   // Active chat inside the folder (defaults to first chat)
   let activeFolderChat = $state<ChatSession | undefined>(undefined);
@@ -20,7 +20,7 @@
     if (folder) {
       // If activeFolderChat is gone (deleted/removed), reset to first
       const still = folder.chats.find((c) => c.id === activeFolderChat?.id);
-      activeFolderChat = still ?? folder.chats[0];
+      // activeFolderChat = still ?? folder.chats[0];
     }
   });
 
@@ -51,7 +51,7 @@
         {folder}
         activeChatId={activeFolderChat?.id}
         onchatselect={(c) => {
-          activeFolderChat = c;
+          // activeFolderChat = c;
         }}
       />
     {/if}
