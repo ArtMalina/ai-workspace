@@ -37,6 +37,10 @@
   let dragPos = $state({ x: 0, y: 0 });
   // Where inside the card the user clicked — keeps ghost anchored to grab point
   let grabOffset = { x: 0, y: 0 };
+  // Size of the currently dragged item — used to clamp within workspace bounds
+  let draggedItemSize = { w: 0, h: 0 };
+  // Reference to workspace root element for bounds clamping
+  let workspaceEl: HTMLElement;
 
   // ─── Folder title editing ────────────────────────────────
   // Tracks which folder cards are currently in title-edit mode.
@@ -63,6 +67,8 @@
     dropTargetId = null;
     if (!grouped) {
       // Canvas: compute offset to keep item under the grab point
+      const el = e.currentTarget as HTMLElement;
+      draggedItemSize = { w: el.offsetWidth, h: el.offsetHeight };
       const items = type === "folder" ? folders : chats;
       const item = items.find((i) => i.id === id)!;
       dragOffset = { x: e.clientX - item.x, y: e.clientY - item.y };
@@ -79,12 +85,16 @@
     if (!draggingId || !draggingType) return;
     didDrag = true;
     if (!grouped) {
-      // Canvas: physically move items and detect drop target for chats
+      // Canvas: physically move items, clamped to workspace bounds
+      const maxX = workspaceEl.clientWidth - draggedItemSize.w;
+      const maxY = workspaceEl.clientHeight - draggedItemSize.h;
+      const x = Math.max(0, Math.min(e.clientX - dragOffset.x, maxX));
+      const y = Math.max(0, Math.min(e.clientY - dragOffset.y, maxY));
       if (draggingType === "folder") {
-        moveFolder(draggingId, e.clientX - dragOffset.x, e.clientY - dragOffset.y);
+        moveFolder(draggingId, x, y);
         dropTargetId = null;
       } else {
-        moveChat(draggingId, e.clientX - dragOffset.x, e.clientY - dragOffset.y);
+        moveChat(draggingId, x, y);
         dropTargetId = folderAtPoint(e.clientX, e.clientY);
       }
     } else {
@@ -108,6 +118,7 @@
 <div
   class="workspace"
   class:workspace--grouped={grouped}
+  bind:this={workspaceEl}
   onmousemove={onMouseMove}
   onmouseup={onMouseUp}
   onmouseleave={onMouseUp}
@@ -262,10 +273,11 @@
     {/if}
   {/if}
 
-  <div class="workspace__actions">
+  <!-- View controls: top-right, below the app header -->
+  <div class="workspace__toolbar">
     <button
-      class="workspace__group-toggle"
-      class:workspace__group-toggle--active={grouped}
+      class="workspace__tool-btn"
+      class:workspace__tool-btn--active={grouped}
       onclick={() => (grouped = !grouped)}
       title={grouped ? "Switch to canvas" : "Group items"}
       type="button"
@@ -276,6 +288,10 @@
         <Group size={15} />
       {/if}
     </button>
+  </div>
+
+  <!-- Create actions: bottom-right -->
+  <div class="workspace__actions">
     <CreateChat onCreate={createChat} />
     <CreateFolder onCreate={createFolder} />
   </div>
@@ -390,18 +406,18 @@
     color: var(--color-neutral-500);
   }
 
-  /* ── Actions bar ───────────────────────────────────── */
-  .workspace__actions {
+  /* ── View toolbar (top-right, below app header) ────── */
+  .workspace__toolbar {
     position: absolute;
-    bottom: var(--spacing-4);
+    top: var(--spacing-3);
     right: var(--spacing-4);
     display: flex;
-    gap: var(--spacing-2);
-    align-items: center;
+    flex-direction: column;
+    gap: var(--spacing-1-5);
+    z-index: 20;
   }
 
-  /* ── Group toggle ──────────────────────────────────── */
-  .workspace__group-toggle {
+  .workspace__tool-btn {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -418,19 +434,29 @@
       color var(--duration-fast) var(--ease-default);
   }
 
-  .workspace__group-toggle:hover {
+  .workspace__tool-btn:hover {
     background: var(--surface-elevated);
     border-color: var(--brand-default);
     color: var(--brand-default);
   }
 
-  .workspace__group-toggle--active {
+  .workspace__tool-btn--active {
     background: color-mix(in srgb, var(--brand-default) 12%, var(--surface-card));
     border-color: var(--brand-default);
     color: var(--brand-default);
   }
 
-  .workspace__group-toggle--active:hover {
+  .workspace__tool-btn--active:hover {
     background: color-mix(in srgb, var(--brand-default) 20%, var(--surface-card));
+  }
+
+  /* ── Create actions (bottom-right) ─────────────────── */
+  .workspace__actions {
+    position: absolute;
+    bottom: var(--spacing-4);
+    right: var(--spacing-4);
+    display: flex;
+    gap: var(--spacing-2);
+    align-items: center;
   }
 </style>
