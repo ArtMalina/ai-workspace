@@ -26,7 +26,7 @@
     flex-shrink: 0;
     border: none;
     background: transparent;
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-md);
     color: var(--text-subtle);
     cursor: pointer;
     transition:
