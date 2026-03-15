@@ -37,9 +37,7 @@ export async function fetchWorkspace(): Promise<void> {
     folderShorts.map((f, i) => ({
       id: f.id,
       title: f.name,
-      llmBrands: [
-        ...new Set(f.chats.map((c) => c.model).filter((m): m is LlmBrandTypes => !!m)),
-      ],
+      llmBrands: [...new Set(f.chats.map((c) => c.model).filter((m): m is LlmBrandTypes => !!m))],
       filesCount: f.resources.filter((r) => r.type === "file").length,
       collectionsCount: f.resources.filter((r) => r.type === "collection").length,
       chats: f.chats,
@@ -82,9 +80,7 @@ export async function fetchChat(id: string): Promise<ChatSession> {
  * Call this after fetchChatSession(id) resolves.
  */
 export function applyChatSession(id: string, session: ChatSession) {
-  chats.update((items) =>
-    items.map((c) => (c.id === id ? { ...c, ...session } : c)),
-  );
+  chats.update((items) => items.map((c) => (c.id === id ? { ...c, ...session } : c)));
 }
 
 /**
@@ -94,22 +90,24 @@ export function applyChatSession(id: string, session: ChatSession) {
 export function applyFolderShort(folderShort: FolderShort) {
   folders.update((items) => {
     const exists = items.some((f) => f.id === folderShort.id);
-    const mapped: FolderItem = {
+    // Data fields only — never touch canvas x/y when updating an existing item
+    const data = {
       id: folderShort.id,
       title: folderShort.name,
       llmBrands: [
-        ...new Set(
-          folderShort.chats.map((c) => c.model).filter((m): m is LlmBrandTypes => !!m),
-        ),
+        ...new Set(folderShort.chats.map((c) => c.model).filter((m): m is LlmBrandTypes => !!m)),
       ],
       filesCount: folderShort.resources.filter((r) => r.type === "file").length,
       collectionsCount: folderShort.resources.filter((r) => r.type === "collection").length,
       chats: folderShort.chats,
       resources: folderShort.resources,
-      x: 40,
-      y: 48,
     };
-    return exists ? items.map((f) => (f.id === folderShort.id ? { ...f, ...mapped } : f)) : [...items, mapped];
+    if (exists) {
+      // Preserve existing x/y — only update data fields
+      return items.map((f) => (f.id === folderShort.id ? { ...f, ...data } : f));
+    }
+    // New item (direct navigation): assign default canvas position
+    return [...items, { ...data, x: 40, y: 48 }];
   });
 }
 
@@ -174,7 +172,14 @@ export function createChatWithMessage(subtitle: string, model?: LlmBrandTypes): 
   const id = crypto.randomUUID();
   chats.update((items) => [
     ...items,
-    { id, title: "New Chat", subtitle, model, x: 48 + Math.random() * 400, y: 48 + Math.random() * 300 },
+    {
+      id,
+      title: "New Chat",
+      subtitle,
+      model,
+      x: 48 + Math.random() * 400,
+      y: 48 + Math.random() * 300,
+    },
   ]);
   return id;
 }
@@ -219,7 +224,13 @@ export function removeChatFromFolder(chatId: string, folderId: string) {
 
   chats.update((items) => [
     ...items,
-    { id: fc.id, title: fc.title, model: fc.model, x: 48 + Math.random() * 400, y: 48 + Math.random() * 300 },
+    {
+      id: fc.id,
+      title: fc.title,
+      model: fc.model,
+      x: 48 + Math.random() * 400,
+      y: 48 + Math.random() * 300,
+    },
   ]);
   folders.update((items) =>
     items.map((f) =>

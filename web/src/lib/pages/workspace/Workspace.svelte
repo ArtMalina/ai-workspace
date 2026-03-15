@@ -6,7 +6,7 @@
   import { goto } from "$app/navigation";
   import { onMount, tick } from "svelte";
   import { Group, Ungroup } from "@lucide/svelte";
-  import { Loader2 } from "@lucide/svelte";
+  import { LoaderCircle } from "@lucide/svelte";
   import { createQuickDropZone, type QuickDropZone } from "./models/quickDropZone";
   import {
     folders,
@@ -176,7 +176,7 @@
   {#if loading}
     <!-- ── Loading overlay ──────────────────────────────── -->
     <div class="workspace__loading" aria-label="Loading workspace">
-      <Loader2 size={22} class="workspace__loading-icon" />
+      <LoaderCircle size={22} class="workspace__loading-icon" />
     </div>
   {:else if grouped}
     <!-- ── Grouped layout ───────────────────────────────── -->
@@ -339,7 +339,6 @@
       type="button"
     >
       {#if grouped}
-
         <Ungroup size={15} />
       {:else}
         <Group size={15} />
@@ -544,6 +543,8 @@
   }
 
   @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+      transform: rotate(360deg);
+    }
   }
 </style>
